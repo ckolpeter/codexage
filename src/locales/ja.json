@@ -166,5 +166,11 @@
   "s.quiet": "おやすみ時間",
   "s.system": "システム",
   "s.openAtLogin": "ログイン時に起動",
-  "s.autoUpdate": "自動的に更新を確認"
+  "s.autoUpdate": "自動的に更新を確認",
+  "label.resets": "上限リセット",
+  "w.resetsTip": "1回で5時間と週間の上限を両方リセットします。Codex CLI で /usage と入力して使います",
+  "w.expiring": "⚠ サインイン情報はあと {left} で期限切れ",
+  "w.repaste": "貼り直す",
+  "notify.expiringTitle": "Codexage のサインイン情報がまもなく期限切れ",
+  "notify.expiringBody": "{time} に期限切れになります。クリックして chatgpt.com/api/auth/session から貼り直してください"
 }

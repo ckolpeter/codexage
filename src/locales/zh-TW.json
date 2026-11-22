@@ -166,5 +166,11 @@
   "s.quiet": "勿擾時段",
   "s.system": "系統",
   "s.openAtLogin": "開機時自動啟動",
-  "s.autoUpdate": "自動檢查更新"
+  "s.autoUpdate": "自動檢查更新",
+  "label.resets": "額度重置次數",
+  "w.resetsTip": "每次可同時重置 5 小時與每週額度。在 Codex CLI 輸入 /usage 使用",
+  "w.expiring": "⚠ 登入資料將在 {left}後過期",
+  "w.repaste": "重新貼上",
+  "notify.expiringTitle": "Codexage 登入資料即將過期",
+  "notify.expiringBody": "將於 {time} 過期。點這裡從 chatgpt.com/api/auth/session 重新貼上"
 }

@@ -126,6 +126,20 @@ function hasUsage(raw) {
 
 const KIND_ORDER = { session: 0, weekly: 1, other: 2, extra: 3 };
 
+/**
+ * Usage-limit resets the user can spend (Codex CLI: /usage). Each one resets the weekly and
+ * 5-hour limits together. Only `available_count` is used by the Codex client; the meaning of
+ * `applicable_available_count` isn't documented, so it's kept but not shown.
+ */
+function resetsOf(raw) {
+  const r = raw?.rate_limit_reset_credits;
+  if (!isObj(r)) return null;
+  const n = Number(r.available_count);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const a = Number(r.applicable_available_count);
+  return { available: Math.floor(n), applicable: Number.isFinite(a) ? Math.floor(a) : null };
+}
+
 function creditsOf(raw) {
   const c = raw?.credits;
   if (!isObj(c)) return null;
@@ -157,6 +171,7 @@ function normalize({ raw, plan, email, accountName } = {}, source = 'web', now =
     windows,
     weeklyOnly: windows.some(w => w.key === 'seven_day') && !windows.some(w => w.key === 'five_hour'),
     credits: creditsOf(raw),
+    resets: resetsOf(raw),
     reachedType: isObj(reached) && reached.type ? String(reached.type) : null,
     plan: planName(raw?.plan_type) || plan || '',
     email: email || '',
@@ -206,6 +221,22 @@ function jwtPayload(token) {
 function tokenExpiry(token) {
   const p = jwtPayload(token);
   return p && Number.isFinite(p.exp) ? p.exp * 1000 : null;
+}
+
+const DAY_MS = 24 * 3600e3;
+/**
+ * Should we remind the user that a (pasted) sign-in is about to expire?
+ * Lead time: 2 days, or a quarter of the token's lifetime if that's shorter (so a short-lived
+ * token doesn't nag right after pasting). Without an issue time, 1 day.
+ * Returns { expiresAt, remind } or null when the token has no expiry.
+ */
+function expiryReminder(token, now = Date.now()) {
+  const p = jwtPayload(token);
+  if (!p || !Number.isFinite(p.exp)) return null;
+  const exp = p.exp * 1000;
+  const lifetime = Number.isFinite(p.iat) ? exp - p.iat * 1000 : null;
+  const lead = lifetime && lifetime > 0 ? Math.min(2 * DAY_MS, lifetime / 4) : DAY_MS;
+  return { expiresAt: exp, remind: exp > now && exp - now <= lead };
 }
 
 /**
@@ -312,5 +343,5 @@ function redact(v, key = '') {
 
 module.exports = {
   normalize, addEta, hasUsage, classify, planName, pctOf,
-  jwtPayload, tokenExpiry, parseCodexAuth, parsePastedSession, parseAccountsCheck, redact,
+  jwtPayload, tokenExpiry, expiryReminder, resetsOf, parseCodexAuth, parsePastedSession, parseAccountsCheck, redact,
 };

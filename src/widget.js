@@ -97,8 +97,20 @@ function othersHtml(others) {
     } else {
       body = `<div class="mmsg">${esc(msgOf(o))}</div>`;
     }
+    if (o.signInExpiresAt) body += expiringHtml(o.signInExpiresAt, o.partition);
     return `<div class="acct"><div class="aname">${esc(name)}${o.plan ? ` <span class="aplan">${esc(o.plan)}</span>` : ''}</div>${body}</div>`;
   }).join('');
+}
+
+/** Usage-limit resets the user can spend in Codex CLI (/usage) */
+function resetsHtml(r) {
+  return `<div class="row secondary" title="${esc(t('w.resetsTip'))}"><div class="line"><span class="label">${esc(t('label.resets'))}</span><span class="pct money">${esc(String(r.available))}</span></div></div>`;
+}
+
+/** Pasted sign-in about to expire: warning + link to paste a fresh one */
+function expiringHtml(at, part) {
+  const left = fmtDur(Math.max(60e3, at - Date.now()));
+  return `<div class="note warnnote">${esc(t('w.expiring', { left }))} <a href="#" class="repaste"${part ? ` data-part="${esc(part)}"` : ''}>${esc(t('w.repaste'))}</a></div>`;
 }
 
 function render() {
@@ -119,6 +131,9 @@ function render() {
     let html = ws.map(rowHtml).join('');
     if (state.others && state.others.length && state.email) html = `<div class="aname">${esc(state.email)}</div>` + html;
     if (!opts.compact && data.credits) html += creditsHtml(data.credits);
+    if (!opts.compact && data.resets) html += resetsHtml(data.resets);
+    // Shown even in compact mode: the widget stops working once it expires
+    if (data.signInExpiresAt) html += expiringHtml(data.signInExpiresAt);
     if (!opts.compact && data.weeklyOnly) html += `<div class="note">${esc(t('w.weeklyOnly'))}</div>`;
     $('content').innerHTML = html;
     $('updated').textContent = data.fetchedAt
@@ -156,6 +171,10 @@ function render() {
       e.preventDefault(); window.api.accounts.paste(a.dataset.part);
     }));
   }
+  $('content').querySelectorAll('.repaste').forEach(a => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (a.dataset.part) window.api.accounts.paste(a.dataset.part); else window.api.paste.open();
+  }));
   requestAnimationFrame(() => window.api.resize(document.body.scrollHeight));
 }
 

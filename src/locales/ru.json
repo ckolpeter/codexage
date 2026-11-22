@@ -166,5 +166,11 @@
   "s.quiet": "Тихие часы",
   "s.system": "Система",
   "s.openAtLogin": "Запускать при входе в систему",
-  "s.autoUpdate": "Автоматически проверять обновления"
+  "s.autoUpdate": "Автоматически проверять обновления",
+  "label.resets": "Сбросы лимита",
+  "w.resetsTip": "Каждый сбрасывает сразу 5-часовой и недельный лимиты. Используйте в Codex CLI командой /usage",
+  "w.expiring": "⚠ Сессия истечёт через {left}",
+  "w.repaste": "Вставить снова",
+  "notify.expiringTitle": "Сессия Codexage скоро истечёт",
+  "notify.expiringBody": "Истекает {time}. Нажмите, чтобы вставить новую сессию из chatgpt.com/api/auth/session"
 }

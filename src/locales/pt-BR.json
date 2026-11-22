@@ -166,5 +166,11 @@
   "s.quiet": "Horário silencioso",
   "s.system": "Sistema",
   "s.openAtLogin": "Abrir ao iniciar a sessão",
-  "s.autoUpdate": "Procurar atualizações automaticamente"
+  "s.autoUpdate": "Procurar atualizações automaticamente",
+  "label.resets": "Renovações de limite",
+  "w.resetsTip": "Cada uma renova ao mesmo tempo o limite de 5 horas e o semanal. Use no Codex CLI com /usage",
+  "w.expiring": "⚠ A sessão expira em {left}",
+  "w.repaste": "Colar de novo",
+  "notify.expiringTitle": "A sessão do Codexage expira em breve",
+  "notify.expiringBody": "Expira em {time}. Clique para colar uma sessão nova de chatgpt.com/api/auth/session"
 }

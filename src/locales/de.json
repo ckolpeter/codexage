@@ -166,5 +166,11 @@
   "s.quiet": "Ruhezeiten",
   "s.system": "System",
   "s.openAtLogin": "Bei der Anmeldung starten",
-  "s.autoUpdate": "Automatisch nach Updates suchen"
+  "s.autoUpdate": "Automatisch nach Updates suchen",
+  "label.resets": "Limit-Zurücksetzungen",
+  "w.resetsTip": "Jede setzt das 5-Stunden- und das Wochenlimit gleichzeitig zurück. In Codex CLI mit /usage einlösen",
+  "w.expiring": "⚠ Anmeldung läuft in {left} ab",
+  "w.repaste": "Erneut einfügen",
+  "notify.expiringTitle": "Codexage-Anmeldung läuft bald ab",
+  "notify.expiringBody": "Läuft am {time} ab. Klicken, um eine neue Sitzung aus chatgpt.com/api/auth/session einzufügen"
 }

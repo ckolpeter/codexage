@@ -84,6 +84,27 @@ test('pasted session: stored encrypted, then used as the bearer token', () => {
   assert.doesNotMatch(r.pastedStored, /pasted@example|"token"|accessToken/); // nothing in plain text
 });
 
+test('fresh pasted session: no expiry warning', () => {
+  const r = run({ SIGNIN: 'none', PASTE: 'valid' });
+  assert.equal(r.state.signInExpiresAt, null);
+  assert.equal(r.notes.length, 0);
+});
+
+test('pasted session about to expire: one reminder, clickable, shown in the widget', () => {
+  const r = run({ SIGNIN: 'none', PASTE: 'expiring', REFRESH_AGAIN: '1' });
+  assert.equal(r.state.status, 'ok');
+  assert.ok(r.state.signInExpiresAt > Date.now());
+  const reminders = r.notes.filter(n => n.clickable);
+  assert.equal(reminders.length, 1); // not repeated on the next refresh
+  assert.match(reminders[0].body, /chatgpt\.com\/api\/auth\/session/);
+  assert.equal(r.pasteWindowAfterClick, true);
+});
+
+test('usage-limit resets reach the widget state', () => {
+  const r = run({ FIXTURE: FIX('usage-plus-real.json') });
+  assert.deepEqual(r.state.resets, { available: 3, applicable: 0 });
+});
+
 test('pasted garbage is refused without touching the stored session', () => {
   const r = run({ SIGNIN: 'none', PASTE: 'hello' });
   assert.equal(r.paste.ok, false);

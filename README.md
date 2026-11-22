@@ -12,7 +12,7 @@ Windows · macOS · Linux
 
 - 5-hour and weekly usage bars with reset countdowns. The limit is shared by Codex, ChatGPT Work, Workspace Agents and ChatGPT for Excel
 - Works when there is **only a weekly limit** (windows are classified by length, not by position)
-- Code review and other extra limits, plus credits, whenever the API reports them
+- Code review and other extra limits, credits, and how many **usage limit resets** you have left (use them in Codex CLI with `/usage`), whenever the API reports them
 - **Run-out prediction**: "At this pace, runs out in 1h 18m", based on your pace over the last hour
 - A **pace marker** on each bar shows how much of the window has elapsed; an unused 5-hour window shows "not started" instead of a frozen countdown
 - **Usage history** charts (5-hour over 24 hours, weekly over 7 days) and CSV export
@@ -53,7 +53,7 @@ Google blocks sign-in inside embedded app windows ("This browser or app may not 
 2. Open `https://chatgpt.com/api/auth/session` in that browser, select all and copy.
 3. In Codexage, click **Paste sign-in** (on the widget, in the tray menu, or in Settings) and paste.
 
-The pasted session is stored encrypted with your OS (Windows DPAPI / macOS Keychain / Linux secret store) and only on this computer. It expires after a while; paste it again when the widget asks.
+The pasted session is stored encrypted with your OS (Windows DPAPI / macOS Keychain / Linux secret store) and only on this computer. It expires after a while: about a day or two before that, Codexage notifies you and shows a "Paste again" link on the widget.
 
 ### Data sources
 

@@ -166,5 +166,11 @@
   "s.quiet": "방해 금지 시간",
   "s.system": "시스템",
   "s.openAtLogin": "로그인 시 실행",
-  "s.autoUpdate": "자동으로 업데이트 확인"
+  "s.autoUpdate": "자동으로 업데이트 확인",
+  "label.resets": "한도 초기화 횟수",
+  "w.resetsTip": "한 번에 5시간 한도와 주간 한도를 모두 초기화합니다. Codex CLI에서 /usage를 입력해 사용하세요",
+  "w.expiring": "⚠ 로그인 정보가 {left} 후 만료됩니다",
+  "w.repaste": "다시 붙여넣기",
+  "notify.expiringTitle": "Codexage 로그인 정보가 곧 만료됩니다",
+  "notify.expiringBody": "{time}에 만료됩니다. 클릭해서 chatgpt.com/api/auth/session에서 다시 붙여넣으세요"
 }

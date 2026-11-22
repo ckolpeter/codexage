@@ -88,7 +88,12 @@ const session = { fromPartition: (part) => ({
   fetch: async (url, opts = {}) => respond(url, opts.headers, part),
   setUserAgent() {}, clearStorageData: async () => {},
 }) };
-class Notification { static isSupported() { return true; } constructor(o) { this.o = o; } show() { (global.__notes ||= []).push(this.o); } }
+class Notification {
+  static isSupported() { return true; }
+  constructor(o) { this.o = o; }
+  on(e, f) { if (e === 'click') this.o = { ...this.o, clickable: true }; this.click = f; }
+  show() { (global.__notes ||= []).push(this.o); (global.__noteObjs ||= []).push(this); }
+}
 class Tray { constructor() {} on() {} setToolTip(t) { global.__tooltip = t; } setContextMenu(m) { global.__menu = m; } setImage() { global.__trayImage = true; } setTitle(t) { global.__trayTitle = t; } }
 const display = { workArea: { x: 0, y: 0, width: 1920, height: 1040 } };
 // "Encryption": reversible marker so tests can check nothing is stored in plain text

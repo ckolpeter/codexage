@@ -49,6 +49,16 @@ test('real Plus response: 5-hour not started yet, weekly running', () => {
   assert.equal(hasUsage(real), true);
 });
 
+test('usage-limit resets: available count from the real response, hidden when none', () => {
+  const { resetsOf } = require('../src/usage');
+  const st = normalize({ raw: real }, 'web', NOW);
+  assert.deepEqual(st.resets, { available: 3, applicable: 0 });
+  assert.equal(resetsOf({ rate_limit_reset_credits: { available_count: 0 } }), null);
+  assert.equal(resetsOf({ rate_limit_reset_credits: null }), null);
+  assert.equal(resetsOf({}), null);
+  assert.deepEqual(resetsOf({ rate_limit_reset_credits: { available_count: 2 } }), { available: 2, applicable: null });
+});
+
 test('code review limit becomes a secondary row', () => {
   const raw = {
     ...real,
@@ -198,6 +208,25 @@ test('parsePastedSession accepts the /api/auth/session JSON or a bare token', ()
   assert.equal(b.accountId, 'acc-9');
   assert.equal(b.email, 'p@example.com');
   assert.equal(b.plan, 'Pro');
+});
+
+test('expiryReminder: 2 days before, or a quarter of a short lifetime', () => {
+  const { expiryReminder } = require('../src/usage');
+  const s = Math.floor(NOW / 1000);
+  // 10-day token: remind in the last 2 days
+  assert.equal(expiryReminder(jwt({ iat: s - 7 * 86400, exp: s + 3 * 86400 }), NOW).remind, false);
+  assert.equal(expiryReminder(jwt({ iat: s - 9 * 86400, exp: s + 86400 }), NOW).remind, true);
+  // 1-day token just pasted: lead is 6 h, so no reminder yet; 5 h left → remind
+  assert.equal(expiryReminder(jwt({ iat: s - 3600, exp: s + 23 * 3600 }), NOW).remind, false);
+  assert.equal(expiryReminder(jwt({ iat: s - 19 * 3600, exp: s + 5 * 3600 }), NOW).remind, true);
+  // no iat: 1 day lead
+  assert.equal(expiryReminder(jwt({ exp: s + 12 * 3600 }), NOW).remind, true);
+  assert.equal(expiryReminder(jwt({ exp: s + 30 * 3600 }), NOW).remind, false);
+  // already expired / no exp / not a JWT
+  assert.equal(expiryReminder(jwt({ exp: s - 10 }), NOW).remind, false);
+  assert.equal(expiryReminder(jwt({}), NOW), null);
+  assert.equal(expiryReminder('nope', NOW), null);
+  assert.equal(expiryReminder(jwt({ exp: s + 3600 }), NOW).expiresAt, (s + 3600) * 1000);
 });
 
 test('parsePastedSession errors', () => {

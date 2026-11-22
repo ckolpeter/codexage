@@ -23,7 +23,7 @@ const { History } = require('./history');
 const { Updater } = require('./updater');
 const { FullscreenWatcher } = require('./fullscreen');
 const usage = require('./usage');
-const { hasUsage, parseCodexAuth, parsePastedSession, parseAccountsCheck, tokenExpiry, jwtPayload, redact, planName } = usage;
+const { hasUsage, parseCodexAuth, parsePastedSession, parseAccountsCheck, tokenExpiry, expiryReminder, jwtPayload, redact, planName } = usage;
 
 const IS_MAC = process.platform === 'darwin';
 const PARTITION = 'persist:chatgpt';
@@ -349,7 +349,7 @@ async function fetchWebUsage(part = PARTITION) {
     debug('wham-usage.json', { fetchedAt: new Date().toISOString(), source: tok.pasted ? 'pasted' : 'web', status: r.status, via: r.via, hasUsage: hasUsage(r.json), raw: r.json });
     if (r.status === 401) { tokenCache.delete(part); throw new AuthError('err.sessionExpired'); }
     if (r.status < 200 || r.status >= 300) throw new AppError('err.http', { host: 'chatgpt.com', status: r.status });
-    return { raw: r.json, plan: tok.plan, email: tok.email || r.json?.email || '' };
+    return { raw: r.json, plan: tok.plan, email: tok.email || r.json?.email || '', pastedToken: tok.pasted ? tok.token : null };
   } finally {
     debug('fetch-log.json', { at: new Date().toISOString(), log });
   }
@@ -464,6 +464,7 @@ async function doRefresh() {
     } else {
       failCount = 0;
       lastState = st;
+      lastState.signInExpiresAt = checkPastedExpiry(data.pastedToken);
       history?.add(lastState);
       addEta(lastState);
       maybeNotify(lastState);
@@ -528,9 +529,29 @@ function inQuietHours(now = new Date()) {
 }
 
 /** All notifications go through here so quiet hours apply everywhere */
-function notify(opts) {
+function notify(opts, onClick) {
   if (!Notification.isSupported() || inQuietHours()) return;
-  new Notification(opts).show();
+  const n = new Notification(opts);
+  if (onClick) n.on('click', onClick);
+  n.show();
+}
+
+/**
+ * A pasted session can't be renewed by us: when it's close to expiring, tell the user once
+ * (per token) and point them at the paste window. Returns the expiry time to show in the widget.
+ */
+function checkPastedExpiry(token, part = PARTITION, who = '') {
+  const r = token ? expiryReminder(token) : null;
+  if (!r?.remind) return null;
+  const id = `expiry|${part}|${r.expiresAt}`;
+  if (config.notify && !notified.has(id)) {
+    notified.add(id);
+    notify({
+      title: (who ? `${who} · ` : '') + t('notify.expiringTitle'),
+      body: t('notify.expiringBody', { time: new Date(r.expiresAt).toLocaleString(lang) }),
+    }, () => openPaste(part));
+  }
+  return r.expiresAt;
 }
 
 function thresholds() {
@@ -846,7 +867,11 @@ async function fetchOthers() {
       const st = normalize(data, 'web');
       addEta(st);
       maybeNotify(st, base.email);
-      return { ...base, status: st.windows.length ? 'ok' : 'error', msgKey: st.windows.length ? undefined : 'err.noLimits', plan: st.plan, windows: st.windows.filter(w => w.primary) };
+      return {
+        ...base, status: st.windows.length ? 'ok' : 'error', msgKey: st.windows.length ? undefined : 'err.noLimits',
+        plan: st.plan, windows: st.windows.filter(w => w.primary),
+        signInExpiresAt: checkPastedExpiry(data.pastedToken, acct.partition, base.email),
+      };
     } catch (e) {
       return { ...base, status: e instanceof AuthError ? 'auth' : 'error', msgKey: e.key, msgVars: e.vars, message: e.key ? undefined : e.message };
     }

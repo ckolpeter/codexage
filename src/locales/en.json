@@ -166,5 +166,11 @@
   "s.quiet": "Quiet hours",
   "s.system": "System",
   "s.openAtLogin": "Launch at login",
-  "s.autoUpdate": "Check for updates automatically"
+  "s.autoUpdate": "Check for updates automatically",
+  "label.resets": "Usage limit resets",
+  "w.resetsTip": "Each one resets both the 5-hour and weekly limits. Use one in Codex CLI with /usage",
+  "w.expiring": "⚠ Sign-in expires in {left}",
+  "w.repaste": "Paste again",
+  "notify.expiringTitle": "Codexage sign-in expires soon",
+  "notify.expiringBody": "Expires {time}. Click to paste a fresh session from chatgpt.com/api/auth/session"
 }

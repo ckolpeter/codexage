@@ -45,9 +45,14 @@ setTimeout(async () => {
   const ipc = global.__ipc;
   let paste = null;
   if (process.env.PASTE) {
-    paste = await ipc['paste:apply']({}, process.env.PASTE === 'valid'
-      ? 'Pretty-print\n' + JSON.stringify({ user: { email: 'pasted@example.com' }, account: { id: 'acc-p', planType: 'pro' }, accessToken: global.__jwt({ exp: Math.floor(Date.now() / 1000) + 3600 }) })
+    // valid: a fresh 10-day token; expiring: issued 9 days ago, 1 hour left
+    const s = Math.floor(Date.now() / 1000);
+    const claims = { valid: { iat: s - 3600, exp: s + 10 * 86400 }, expiring: { iat: s - 9 * 86400, exp: s + 3600 } }[process.env.PASTE];
+    paste = await ipc['paste:apply']({}, claims
+      ? 'Pretty-print\n' + JSON.stringify({ user: { email: 'pasted@example.com' }, account: { id: 'acc-p', planType: 'pro' }, accessToken: global.__jwt(claims) })
       : process.env.PASTE);
+    if (process.env.REFRESH_AGAIN) await ipc['refresh']?.(); // a second refresh must not repeat the reminder
+    await new Promise(r => setTimeout(r, 300));
   }
   const state = global.__sent.filter(s => s[0] === 'usage').pop()?.[1];
   const settings = await ipc['settings:get']();
@@ -62,6 +67,13 @@ setTimeout(async () => {
     pastedStored: fs.existsSync(pastedFile) ? fs.readFileSync(pastedFile, 'utf8') : null,
     loginWindows: global.__windows.filter(w => String(w.url || '').includes('/auth/login')).length,
     notes: global.__notes || [],
+    pasteWindowAfterClick: (() => {
+      // Click the sign-in reminder (if any) and report whether the paste window opened
+      const n = (global.__noteObjs || []).find(x => x.click);
+      if (!n) return null;
+      n.click();
+      return global.__windows.some(w => String(w.file || '').endsWith('paste.html') && !w.destroyed);
+    })(),
     electronOk: !!electron.app,
   }));
   process.exit(0);
