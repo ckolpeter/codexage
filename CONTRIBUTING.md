@@ -52,9 +52,14 @@ When run with `npm start`, raw responses are saved to `debug/` (gitignored; toke
 
 ## 發佈 / Releasing（維護者）
 
+1. 寫 `docs/releases/vX.Y.Z.md`（中英雙語 Release 說明，格式參考既有檔案）並 commit
+2. 建立版本並推送：
+
 ```bash
-npm version patch   # 或 minor / major，會建立 vX.Y.Z 標籤
-git push --follow-tags
+npm version patch   # 或 minor / major，會 commit 版本號並建立 vX.Y.Z 標籤
+git push origin main --follow-tags
 ```
 
-GitHub Actions 會在三個平台建置並建立 Release 草稿，確認後按 Publish。
+GitHub Actions 會在三個平台建置並上傳到 Release 草稿；三個平台都成功、且 `latest*.yml` 都在時，會用 `docs/releases/vX.Y.Z.md` 當說明自動正式發佈。找不到說明檔時會保留為草稿，需手動發佈。
+
+Write `docs/releases/vX.Y.Z.md` first, then `npm version` + push. CI builds all three platforms and publishes the release with those notes once every build succeeded (it stays a draft if the notes file is missing).

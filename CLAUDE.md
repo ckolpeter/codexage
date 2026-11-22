@@ -57,7 +57,7 @@ npm run dist:win:local # Windows installer reusing node_modules/electron/dist (n
 npm run dist:win | dist:mac | dist:linux
 ```
 
-Release: `npm version x.y.z && git push --follow-tags` → GitHub Actions builds all 3 platforms and creates a **draft** Release → publish it manually.
+Release: write bilingual notes in `docs/releases/vX.Y.Z.md` and commit → `npm version patch|minor|major` → `git push origin main --follow-tags`. GitHub Actions builds all 3 platforms into a draft, then the `publish` job publishes it with those notes once every build succeeded and `latest*.yml` are present (no notes file → stays a draft). Afterwards verify assets + `latest*.yml` via the public API (`/releases/latest`, `releases/latest/download/latest.yml`). Don't release docs-only changes.
 
 ## Known pitfalls (same as Clausage)
 

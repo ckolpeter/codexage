@@ -1,5 +1,6 @@
 # 推送到 main / 發 PR：三平台建置檢查（不發佈）
-# 推送 v* 標籤（例如 v0.1.0）：三平台建置並上傳到 GitHub Release 草稿
+# 推送 v* 標籤（例如 v0.1.0）：三平台建置並上傳到 GitHub Release 草稿；
+#   三個平台都成功後，以 docs/releases/<標籤>.md 為說明自動正式發佈（沒有說明檔就保留草稿）
 name: Build
 
 on:
@@ -76,3 +77,33 @@ jobs:
             dist/*.deb
           if-no-files-found: ignore
           retention-days: 7
+
+  # 三個平台都建置成功後，把草稿正式發佈（標題、說明來自 docs/releases/<標籤>.md）
+  publish:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          NOTES="docs/releases/$TAG.md"
+          if [ ! -f "$NOTES" ]; then
+            echo "::warning::找不到 $NOTES，Release 保留為草稿，請手動填寫說明後發佈 / $NOTES not found: the release stays a draft"
+            exit 0
+          fi
+          # 標籤必須和 package.json 版本一致（electron-builder 依 package.json 上傳）
+          PKG="v$(node -p "require('./package.json').version")"
+          if [ "$PKG" != "$TAG" ]; then echo "::error::tag $TAG != package.json $PKG"; exit 1; fi
+          # 三個平台的自動更新清單都要在，才發佈
+          ASSETS=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+          for f in latest.yml latest-mac.yml latest-linux.yml; do
+            echo "$ASSETS" | grep -qx "$f" || { echo "::error::$f missing from the draft"; exit 1; }
+          done
+          echo "Assets:"; echo "$ASSETS"
+          gh release edit "$TAG" --title "Codexage $TAG" --notes-file "$NOTES" --draft=false --latest
