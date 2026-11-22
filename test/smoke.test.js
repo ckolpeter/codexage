@@ -211,3 +211,28 @@ test('extra accounts are fetched alongside the main one', () => {
   assert.equal(r.state.email, 'me@example.com');
   assert.equal(usageReqs(r).find(q => q.part === 'persist:chatgpt-acct-x').account, 'acc-2');
 });
+
+test('history is kept per account; the history window can switch between them', () => {
+  const env = {
+    FIXTURE_OTHER: FIX('usage-weekly-only.json'),
+    PRECONFIG: JSON.stringify({ accounts: [{ partition: 'persist:chatgpt-acct-x', email: '', label: '公司' }] }),
+  };
+  const r = run({ ...env, HISTORY: '1' });
+  assert.deepEqual(r.history.accounts.map(a => [a.key, a.name]), [['me@example.com', 'me@example.com'], ['work@example.com', '公司']]);
+  assert.equal(r.history.selected, 'me@example.com'); // main account by default
+  assert.deepEqual(r.history.week.map(p => p.v), [17]);
+  const w = run({ ...env, HISTORY: 'work@example.com' });
+  assert.equal(w.history.selected, 'work@example.com');
+  assert.deepEqual(w.history.week.map(p => p.v), [85]);
+  assert.deepEqual(w.history.five, []);
+});
+
+test('tray: other accounts in the tooltip; highest of all accounts only when asked', () => {
+  const acct = [{ partition: 'persist:chatgpt-acct-x', email: '' }];
+  const base = { FIXTURE_OTHER: FIX('usage-weekly-only.json'), SIM_PLATFORM: 'darwin' };
+  const off = run({ ...base, PRECONFIG: JSON.stringify({ accounts: acct }) });
+  assert.equal(off.trayTitle.trim(), '42%'); // main account only (default)
+  assert.match(off.tooltip, /\nwork@example\.com\b.*85%/);
+  const on = run({ ...base, PRECONFIG: JSON.stringify({ accounts: acct, trayAllAccounts: true }) });
+  assert.equal(on.trayTitle.trim(), '85%'); // weekly-only account: 5-hour metric falls back to weekly
+});

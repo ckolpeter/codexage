@@ -190,5 +190,9 @@
   "s.accountLabel": "显示名称",
   "s.accountLabelHint": "显示在小组件的用量条上方。留空则显示 email。",
   "s.accountLabelEmpty": "登录后会显示 email",
-  "s.maskEmail": "在小组件上遮蔽 email，例如 s***@gmail.com（屏幕共享时使用）"
+  "s.maskEmail": "在小组件上遮蔽 email，例如 s***@gmail.com（屏幕共享时使用）",
+  "h.account": "账号",
+  "h.mainAccount": "主账号",
+  "s.trayAllAccounts": "托盘显示所有账号中最高的数字",
+  "tray.acctLine": "{name}：5 小时 {five}・每周 {week}"
 }

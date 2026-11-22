@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld('api', {
     openSessionPage: () => ipcRenderer.send('paste:open-session-page'),
   },
   history: {
-    get: () => ipcRenderer.invoke('history:get'),
+    get: (acct) => ipcRenderer.invoke('history:get', acct),
     clear: () => ipcRenderer.invoke('history:clear'),
     exportCSV: () => ipcRenderer.invoke('history:export'),
   },

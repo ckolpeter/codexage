@@ -190,5 +190,9 @@
   "s.accountLabel": "Nombre visible",
   "s.accountLabelHint": "Se muestra en el widget encima de las barras. Déjalo vacío para mostrar el correo.",
   "s.accountLabelEmpty": "El correo aparece al iniciar sesión",
-  "s.maskEmail": "Ocultar correos en el widget, p. ej. s***@gmail.com (al compartir pantalla)"
+  "s.maskEmail": "Ocultar correos en el widget, p. ej. s***@gmail.com (al compartir pantalla)",
+  "h.account": "Cuenta",
+  "h.mainAccount": "Cuenta principal",
+  "s.trayAllAccounts": "La bandeja muestra el valor más alto de todas las cuentas",
+  "tray.acctLine": "{name}: 5 h {five} · semanal {week}"
 }

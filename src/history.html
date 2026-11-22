@@ -23,6 +23,9 @@
     visibility: hidden;
   }
   body.ready { visibility: visible; }
+  .acct { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--fg2); }
+  .acct[hidden] { display: none; }
+  .acct select { font: inherit; color: var(--fg); background: var(--card); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 3px 6px; max-width: 320px; }
   .stats { display: flex; gap: 10px; margin-bottom: 14px; }
   .stat { flex: 1; background: var(--card); border-radius: 8px; padding: 8px 10px; }
   .stat .v { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -43,6 +46,7 @@
 </style>
 </head>
 <body>
+  <label class="acct" id="acctRow" hidden><span data-i18n="h.account"></span> <select id="acct"></select></label>
   <div class="stats" id="stats"></div>
   <div class="chart" id="c5"><h3 data-i18n="h.five"></h3><div class="plot"></div><div class="tip"></div></div>
   <div class="chart" id="c7"><h3 data-i18n="h.week"></h3><div class="plot"></div><div class="tip"></div></div>

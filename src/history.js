@@ -1,7 +1,8 @@
 'use strict';
 /**
  * Local usage history (main process).
- * Stores one sample per refresh: { t, f, fr, w, wr }
+ * Stores one sample per refresh and account: { t, a, f, fr, w, wr }
+ *   a       = account key (lower-case email); absent = samples from before multi-account history
  *   f / w   = 5-hour / weekly utilization (%)
  *   fr / wr = their resets_at, which identifies the window a sample belongs to
  * Kept for 8 days, saved to <userData>/history.json. Never leaves the computer.
@@ -25,18 +26,19 @@ class History {
     this.saveTimer = null;
   }
 
-  /** Record a normalized 'ok' state */
-  add(state, now = Date.now()) {
+  /** Record a normalized 'ok' state for an account ('' = unlabeled) */
+  add(state, now = Date.now(), acct = '') {
     const five = state.windows?.find(w => w.key === 'five_hour');
     const week = state.windows?.find(w => w.key === 'seven_day');
     if (!five && !week) return;
     const s = {
-      t: now,
+      t: now, ...(acct ? { a: acct } : {}),
       f: five ? five.pct : null, fr: five?.resetsAt || null,
       w: week ? week.pct : null, wr: week?.resetsAt || null,
     };
-    const last = this.samples[this.samples.length - 1];
-    if (last && now - last.t < MIN_GAP_MS) this.samples[this.samples.length - 1] = s;
+    let i = this.samples.length - 1;
+    while (i >= 0 && (this.samples[i].a || '') !== acct) i--;
+    if (i >= 0 && now - this.samples[i].t < MIN_GAP_MS) this.samples[i] = s;
     else this.samples.push(s);
     this.prune(now);
     this.save();
@@ -56,13 +58,29 @@ class History {
 
   clear() { this.samples = []; this.save(); }
 
+  /** Samples recorded before history was per account belong to the main account */
+  claimUnlabeled(acct) {
+    if (!acct || !this.samples.some(s => !s.a)) return;
+    for (const s of this.samples) if (!s.a) s.a = acct;
+    this.save();
+  }
+
+  /** Accounts that have samples, most recently seen first: [{ key, last }] */
+  accounts() {
+    const last = new Map();
+    for (const s of this.samples) last.set(s.a || '', Math.max(last.get(s.a || '') || 0, s.t));
+    return [...last].map(([key, t]) => ({ key, last: t })).sort((x, y) => y.last - x.last);
+  }
+
+  #of(acct) { return this.samples.filter(s => (s.a || '') === (acct || '')); }
+
   /**
    * Recent usage pace in %/ms for a window ('f' or 'w'), using only samples from the
    * same window (same resets_at). Returns null when there isn't enough data.
    */
-  recentRate(field, resetsAt, now = Date.now()) {
+  recentRate(field, resetsAt, now = Date.now(), acct = '') {
     const rk = field === 'f' ? 'fr' : 'wr';
-    const pts = this.samples.filter(s => s[rk] === resetsAt && s[field] != null && s.t >= now - RATE_LOOKBACK_MS);
+    const pts = this.#of(acct).filter(s => s[rk] === resetsAt && s[field] != null && s.t >= now - RATE_LOOKBACK_MS);
     if (pts.length < 2) return null;
     const a = pts[0], b = pts[pts.length - 1];
     const span = b.t - a.t;
@@ -70,22 +88,22 @@ class History {
     return Math.max(0, (b[field] - a[field]) / span);
   }
 
-  /** All samples as CSV (local time + ISO UTC), oldest first */
+  /** All samples of every account as CSV (local time + ISO UTC), oldest first */
   toCSV() {
     const pad = (n) => String(n).padStart(2, '0');
     const local = (t) => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
     const cell = (v) => (v == null ? '' : String(v));
-    const rows = [['time_local', 'time_utc', 'five_hour_pct', 'five_hour_resets_at', 'weekly_pct', 'weekly_resets_at']];
-    for (const s of this.samples) {
-      rows.push([local(s.t), new Date(s.t).toISOString(), cell(s.f), cell(s.fr), cell(s.w), cell(s.wr)]);
+    const rows = [['time_local', 'time_utc', 'five_hour_pct', 'five_hour_resets_at', 'weekly_pct', 'weekly_resets_at', 'account']];
+    for (const s of [...this.samples].sort((x, y) => x.t - y.t)) {
+      rows.push([local(s.t), new Date(s.t).toISOString(), cell(s.f), cell(s.fr), cell(s.w), cell(s.wr), cell(s.a).replace(/[",\r\n]/g, '')]);
     }
     return rows.map(r => r.join(',')).join('\r\n') + '\r\n';
   }
 
   /** Samples since a time, for charts: [{t, v}] */
-  series(field, since) {
+  series(field, since, acct = '') {
     const rk = field === 'f' ? 'fr' : 'wr';
-    return this.samples.filter(s => s.t >= since && s[field] != null).map(s => ({ t: s.t, v: s[field], r: s[rk] }));
+    return this.#of(acct).filter(s => s.t >= since && s[field] != null).map(s => ({ t: s.t, v: s[field], r: s[rk] }));
   }
 }
 

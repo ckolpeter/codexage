@@ -4,7 +4,7 @@ const S = window.api.settings;
 let DICT = {};
 const t = (k, v = {}) => (DICT[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? `{${x}}`);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const CHECKS = ['alwaysOnTop', 'compact', 'notify', 'notifyReset', 'openAtLogin', 'autoUpdate', 'clickThrough', 'quietEnabled', 'hideOnFullscreen', 'snapEdges', 'maskEmail'];
+const CHECKS = ['alwaysOnTop', 'compact', 'notify', 'notifyReset', 'openAtLogin', 'autoUpdate', 'clickThrough', 'quietEnabled', 'hideOnFullscreen', 'snapEdges', 'maskEmail', 'trayAllAccounts'];
 
 async function applyI18n() {
   const { lang, dict } = await window.api.i18n();
@@ -82,6 +82,7 @@ async function loadAccounts() {
   const list = await window.api.accounts.list();
   const box = $('acctList');
   box.textContent = '';
+  $('trayAllRow').style.display = list.length ? '' : 'none'; // only matters with several accounts
   list.forEach((a, i) => {
     const row = document.createElement('div'); row.className = 'acctRow';
     // Editable name; the email (or "Account N") shows as the placeholder

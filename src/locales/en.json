@@ -190,5 +190,9 @@
   "s.accountLabel": "Display name",
   "s.accountLabelHint": "Shown on the widget above the bars. Leave empty to show the email.",
   "s.accountLabelEmpty": "Email appears after sign-in",
-  "s.maskEmail": "Mask emails on the widget, e.g. s***@gmail.com (for screen sharing)"
+  "s.maskEmail": "Mask emails on the widget, e.g. s***@gmail.com (for screen sharing)",
+  "h.account": "Account",
+  "h.mainAccount": "Main account",
+  "s.trayAllAccounts": "Tray shows the highest of all accounts",
+  "tray.acctLine": "{name}: 5h {five} · weekly {week}"
 }

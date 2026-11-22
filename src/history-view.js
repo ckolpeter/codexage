@@ -107,8 +107,29 @@ function stat(value, label) {
   return s;
 }
 
+let selected; // account key shown (undefined = main account)
+
+/** Account picker, only when history has more than one account */
+function renderAccounts(list, sel) {
+  $('acctRow').hidden = list.length < 2;
+  const box = $('acct');
+  const sig = JSON.stringify(list);
+  if (box.dataset.sig !== sig) {
+    box.textContent = '';
+    for (const a of list) {
+      const o = document.createElement('option');
+      o.value = a.key; o.textContent = a.name;
+      box.appendChild(o);
+    }
+    box.dataset.sig = sig;
+  }
+  box.value = sel;
+}
+
 async function render() {
-  const data = await window.api.history.get();
+  const data = await window.api.history.get(selected);
+  selected = data.selected;
+  renderAccounts(data.accounts || [], data.selected);
   const now = data.now;
   const five = data.five, week = data.week;
 
@@ -145,6 +166,7 @@ async function render() {
   document.title = t('h.title');
   document.body.classList.add('ready');
   await render();
+  $('acct').addEventListener('change', (e) => { selected = e.target.value; render(); });
   $('export').addEventListener('click', () => window.api.history.exportCSV());
   $('clear').addEventListener('click', async () => {
     if (confirm(t('h.clearConfirm'))) { await window.api.history.clear(); render(); }

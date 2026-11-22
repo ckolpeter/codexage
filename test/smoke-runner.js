@@ -58,12 +58,14 @@ setTimeout(async () => {
   const settings = await ipc['settings:get']();
   await ipc['settings:set']({}, { notifyThresholds: [95, 50, 200, 'x'] });
   const after = await ipc['settings:get']();
+  // HISTORY: what the history window gets (HISTORY=<key> picks an account)
+  const history = process.env.HISTORY ? await ipc['history:get']({}, process.env.HISTORY === '1' ? undefined : process.env.HISTORY) : undefined;
   const workspaces = process.env.WORKSPACES ? await ipc['settings:list-workspaces']() : undefined;
   const pastedFile = path.join(global.__userData, 'pasted-sessions.bin');
   process.stdout.write('\n@@RESULT@@' + JSON.stringify({
     state, tooltip: global.__tooltip, trayImage: !!global.__trayImage, trayTitle: global.__trayTitle || '', platform: process.platform,
     languages: settings.languages.length, thresholds: after.config.notifyThresholds, signIn: settings.signIn,
-    reqs: global.__reqs, paste, workspaces,
+    reqs: global.__reqs, paste, workspaces, history,
     pastedStored: fs.existsSync(pastedFile) ? fs.readFileSync(pastedFile, 'utf8') : null,
     loginWindows: global.__windows.filter(w => String(w.url || '').includes('/auth/login')).length,
     notes: global.__notes || [],

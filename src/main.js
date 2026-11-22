@@ -63,6 +63,7 @@ const DEFAULTS = {
   quietStart: '23:00',
   quietEnd: '08:00',
   trayMetric: 'five_hour', // 'five_hour' | 'seven_day' | 'max' | 'off'  (five_hour falls back to weekly)
+  trayAllAccounts: false,  // tray number = the highest among every signed-in account
   openAtLogin: false,
   autoUpdate: true,
   hotkey: 'CommandOrControl+Alt+X', // show / hide the widget ('' = off)
@@ -453,7 +454,12 @@ function checkResetExpiry(resets) {
 
 // ---------------------------------------------------------------- normalize
 function normalize(data, source = config.source) { return usage.normalize(data, source); }
-function addEta(state, now = Date.now()) { return usage.addEta(state, history, now); }
+/** History is kept per account, keyed by lower-case email ('' while the email is unknown) */
+const histKey = (email) => String(email || '').trim().toLowerCase();
+function addEta(state, acct = '', now = Date.now()) {
+  const h = history && { recentRate: (field, resetsAt, at) => history.recentRate(field, resetsAt, at, acct) };
+  return usage.addEta(state, h, now);
+}
 
 /** Translated label of a window ("5-hour", "Code review · Weekly", …) */
 function labelOf(w) {
@@ -513,8 +519,10 @@ async function doRefresh() {
         const d = await resetCreditDetails(lastState.resets.available);
         if (d) { lastState.resets.nextExpiry = d.nextExpiry; checkResetExpiry(lastState.resets); }
       }
-      history?.add(lastState);
-      addEta(lastState);
+      const key = histKey(config.mainEmail);
+      history?.claimUnlabeled(key);
+      history?.add(lastState, Date.now(), key);
+      addEta(lastState, key);
       maybeNotify(lastState, who);
       checkResets(prevOk, lastState);
       scheduleResetCheck(lastState);
@@ -929,7 +937,9 @@ async function fetchOthers() {
       const data = await fetchWebUsage(acct.partition);
       if (data.email && data.email !== acct.email) { acct.email = data.email; base.email = data.email; base.name = acctName(acct); saveConfig(); }
       const st = normalize(data, 'web');
-      addEta(st);
+      const key = histKey(base.email);
+      if (key) history?.add(st, Date.now(), key);
+      addEta(st, key || acct.partition);
       maybeNotify(st, base.name || base.email);
       return {
         ...base, status: st.windows.length ? 'ok' : 'error', msgKey: st.windows.length ? undefined : 'err.noLimits',
@@ -1030,10 +1040,17 @@ function buildMenu() {
 
 const TRAY_COLORS = { ok: '#2f8f55', warn: '#c98411', bad: '#cc3f35' };
 
-/** Window whose % goes into the tray. "5-hour" falls back to weekly when there is no 5-hour limit. */
+/**
+ * Window whose % goes into the tray. "5-hour" falls back to weekly when there is no 5-hour limit.
+ * With "all accounts", the highest of every signed-in account wins (the main one on a tie).
+ */
 function trayMetricWindow() {
-  const ws = lastState.status === 'ok' ? lastState.windows : null;
-  if (!ws || config.trayMetric === 'off') return null;
+  if (config.trayMetric === 'off') return null;
+  const sets = [lastState.status === 'ok' ? lastState.windows : null];
+  if (config.trayAllAccounts) for (const o of lastState.others || []) if (o.status === 'ok') sets.push(o.windows);
+  return sets.filter(Boolean).map(metricOf).filter(Boolean).sort((a, b) => b.pct - a.pct)[0] || null;
+}
+function metricOf(ws) {
   const five = ws.find(w => w.key === 'five_hour');
   const week = ws.find(w => w.key === 'seven_day');
   if (config.trayMetric === 'seven_day') return week || five || null;
@@ -1081,8 +1098,13 @@ function updateTray() {
     ? t('tray.tooltip', { five: five ? Math.round(five.pct) + '%' : '-', week: week ? Math.round(week.pct) + '%' : '-' })
       + (five?.eta?.beforeReset ? '\n' + t('tray.eta', { time: new Date(five.eta.at).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' }) }) : '')
     : t('tray.tooltipMsg', { msg: stateMessage(lastState) || t('tray.loading') });
-  tray.setToolTip(lastState.account ? `${lastState.account}
-${tip}` : tip);
+  // Other accounts: one short line each
+  const pctIn = (o, key) => { const w = o.windows?.find(x => x.key === key); return w ? Math.round(w.pct) + '%' : '-'; };
+  const lines = (lastState.others || []).filter(o => o.status === 'ok')
+    .map(o => t('tray.acctLine', { name: o.name || o.email, five: pctIn(o, 'five_hour'), week: pctIn(o, 'seven_day') }));
+  let full = [lastState.account ? `${lastState.account}\n${tip}` : tip, ...lines].join('\n');
+  if (process.platform === 'win32' && full.length > 127) full = full.slice(0, 126) + '…'; // Windows tooltip limit
+  tray.setToolTip(full);
   if (IS_MAC) { const m = trayMetricWindow(); tray.setTitle(m ? ` ${Math.round(m.pct)}%` : ''); }
   tray.setContextMenu(buildMenu());
 }
@@ -1104,13 +1126,26 @@ ipcMain.on('use-source', (_e, src) => {
 ipcMain.on('paste:open', (_e, part) => openPaste(part || PARTITION));
 ipcMain.handle('paste:apply', (_e, text, part) => applyPasted(text, part || PARTITION));
 ipcMain.on('paste:open-session-page', () => shell.openExternal(SESSION_PAGE));
-ipcMain.handle('history:get', () => {
+/** Name of a history account: the main / extra account's display name, else its email */
+function historyName(key) {
+  const main = histKey(config.mainEmail);
+  if (key === main || !key) return (key === main && mainName()) || t('h.mainAccount');
+  const a = (config.accounts || []).find(x => histKey(x.email) === key);
+  return a ? acctName(a) : usage.accountName(key, '', config.maskEmail);
+}
+ipcMain.handle('history:get', (_e, acct) => {
   const now = Date.now();
+  const main = histKey(config.mainEmail);
+  // Main account first, then the others by when they were last seen
+  const keys = [main, ...(history ? history.accounts().map(a => a.key).filter(k => k !== main) : [])];
+  const sel = typeof acct === 'string' && keys.includes(acct) ? acct : main;
   return {
     now,
-    five: history ? history.series('f', now - 24 * 3600e3) : [],
-    fiveWeek: history ? history.series('f', now - 7 * 24 * 3600e3) : [],
-    week: history ? history.series('w', now - 7 * 24 * 3600e3) : [],
+    accounts: keys.map(key => ({ key, name: historyName(key) })),
+    selected: sel,
+    five: history ? history.series('f', now - 24 * 3600e3, sel) : [],
+    fiveWeek: history ? history.series('f', now - 7 * 24 * 3600e3, sel) : [],
+    week: history ? history.series('w', now - 7 * 24 * 3600e3, sel) : [],
   };
 });
 ipcMain.handle('history:clear', () => { history?.clear(); return true; });
@@ -1170,7 +1205,7 @@ ipcMain.handle('settings:set', async (_e, patch) => {
   widget?.setOpacity(config.opacity);
   applyTopmost();
   app.setLoginItemSettings({ openAtLogin: !!config.openAtLogin });
-  if ('trayMetric' in patch) trayIconKey = '';
+  if ('trayMetric' in patch || 'trayAllAccounts' in patch) trayIconKey = '';
   if ('autoUpdate' in patch) updater?.start(config.autoUpdate);
   if ('scale' in patch) applyScale();
   if ('clickThrough' in patch) applyClickThrough();

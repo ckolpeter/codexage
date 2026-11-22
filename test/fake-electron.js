@@ -1,6 +1,7 @@
 // Minimal Electron stand-in so test/smoke.test.js can run src/main.js under plain Node.
 // Env:
 //   FIXTURE     wham/usage JSON returned to every account
+//   FIXTURE_OTHER  wham/usage JSON for the extra accounts instead (default FIXTURE)
 //   SIGNIN      'cookie' (default) | 'none'   — whether the partitions have a chatgpt.com session cookie
 //   OFFLINE     net.isOnline() → false
 //   NETFAIL     every request throws a network error
@@ -9,6 +10,7 @@
 //   VERBOSE     log requests
 const os = require('os'), path = require('path'), fs = require('fs');
 const fixture = JSON.parse(fs.readFileSync(process.env.FIXTURE, 'utf8'));
+const fixtureOther = process.env.FIXTURE_OTHER ? JSON.parse(fs.readFileSync(process.env.FIXTURE_OTHER, 'utf8')) : fixture;
 const log = (...a) => { if (process.env.VERBOSE) console.log('[fake]', ...a); };
 const sent = global.__sent = [];
 const handlers = global.__ipc = {};
@@ -48,7 +50,7 @@ function respond(url, headers = {}, part = null) {
     };
   } else if (u.pathname === '/backend-api/wham/usage') {
     if (!h.authorization) { status = 401; body = { detail: 'Unauthorized' }; }
-    else { status = Number(process.env.USAGE_STATUS || 200); body = status === 200 ? fixture : { detail: 'nope' }; }
+    else { status = Number(process.env.USAGE_STATUS || 200); body = status !== 200 ? { detail: 'nope' } : part && part !== 'persist:chatgpt' ? fixtureOther : fixture; }
   } else if (u.pathname === '/backend-api/wham/rate-limit-reset-credits') {
     // RESET_EXPIRY_HOURS: hours until the soonest available reset expires (default 30 days)
     const soon = new Date(Date.now() + Number(process.env.RESET_EXPIRY_HOURS || 720) * 3600e3).toISOString();

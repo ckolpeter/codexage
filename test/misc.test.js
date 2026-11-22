@@ -18,7 +18,7 @@ test('history: samples, CSV export, pruning', () => {
   assert.equal(h.samples.length, 2);
   assert.deepEqual(h.series('f', now - 3600e3).map(p => p.v), [13, 15]);
   const csv = h.toCSV().trim().split('\r\n');
-  assert.equal(csv[0], 'time_local,time_utc,five_hour_pct,five_hour_resets_at,weekly_pct,weekly_resets_at');
+  assert.equal(csv[0], 'time_local,time_utc,five_hour_pct,five_hour_resets_at,weekly_pct,weekly_resets_at,account');
   assert.equal(csv.length, 3);
 });
 
@@ -29,6 +29,32 @@ test('history: weekly-only states are recorded too', () => {
   assert.equal(h.samples.length, 1);
   assert.equal(h.samples[0].f, null);
   assert.equal(h.samples[0].w, 30);
+});
+
+test('history: kept per account', () => {
+  const { History } = require('../src/history');
+  const h = new History(path.join(os.tmpdir(), `codexage-hist3-${process.pid}.json`)); h.clear();
+  const now = Date.now();
+  const st = (f) => ({ windows: [{ key: 'five_hour', pct: f, resetsAt: 'R1' }] });
+  h.add(st(5), now - 30 * 60e3);               // from before history was per account
+  h.claimUnlabeled('me@example.com');           // → belongs to the main account
+  h.add(st(10), now - 20 * 60e3, 'me@example.com');
+  h.add(st(70), now - 20 * 60e3 + 1000, 'work@example.com'); // another account: not merged with the main sample
+  h.add(st(20), now, 'me@example.com');
+  h.add(st(90), now + 1000, 'work@example.com');
+  assert.deepEqual(h.series('f', now - 3600e3, 'me@example.com').map(p => p.v), [5, 10, 20]);
+  assert.deepEqual(h.series('f', now - 3600e3, 'work@example.com').map(p => p.v), [70, 90]);
+  assert.deepEqual(h.series('f', now - 3600e3), []);
+  assert.deepEqual(h.accounts().map(a => a.key), ['work@example.com', 'me@example.com']);
+  // pace uses only that account's samples: main +10% / 20 min, work +20% / 20 min
+  const perMin = (acct) => h.recentRate('f', 'R1', now + 1000, acct) * 60e3;
+  assert.ok(Math.abs(perMin('me@example.com') - 0.5) < 0.01);
+  assert.ok(Math.abs(perMin('work@example.com') - 1) < 0.01);
+  const csv = h.toCSV().trim().split('\r\n');
+  assert.equal(csv.length, 6);
+  assert.match(csv[1], /,me@example\.com$/);
+  assert.match(csv[2], /,me@example\.com$/);
+  assert.match(csv[3], /,work@example\.com$/);
 });
 
 test('version comparison', () => {

@@ -190,5 +190,9 @@
   "s.accountLabel": "表示名",
   "s.accountLabelHint": "ウィジェットのバーの上に表示されます。空欄ならメールアドレスを表示します。",
   "s.accountLabelEmpty": "サインイン後にメールアドレスが表示されます",
-  "s.maskEmail": "ウィジェットのメールアドレスを伏せる（例 s***@gmail.com、画面共有時に）"
+  "s.maskEmail": "ウィジェットのメールアドレスを伏せる（例 s***@gmail.com、画面共有時に）",
+  "h.account": "アカウント",
+  "h.mainAccount": "メインアカウント",
+  "s.trayAllAccounts": "トレイに全アカウントの最大値を表示",
+  "tray.acctLine": "{name}：5時間 {five}・週 {week}"
 }

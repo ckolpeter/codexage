@@ -190,5 +190,9 @@
   "s.accountLabel": "Anzeigename",
   "s.accountLabelHint": "Wird im Widget über den Balken angezeigt. Leer lassen, um die E-Mail anzuzeigen.",
   "s.accountLabelEmpty": "Die E-Mail erscheint nach der Anmeldung",
-  "s.maskEmail": "E-Mails im Widget maskieren, z. B. s***@gmail.com (bei Bildschirmfreigabe)"
+  "s.maskEmail": "E-Mails im Widget maskieren, z. B. s***@gmail.com (bei Bildschirmfreigabe)",
+  "h.account": "Konto",
+  "h.mainAccount": "Hauptkonto",
+  "s.trayAllAccounts": "Tray zeigt den höchsten Wert aller Konten",
+  "tray.acctLine": "{name}: 5 Std. {five} · Woche {week}"
 }

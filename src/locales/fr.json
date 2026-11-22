@@ -190,5 +190,9 @@
   "s.accountLabel": "Nom affiché",
   "s.accountLabelHint": "Affiché sur le widget au-dessus des barres. Laissez vide pour afficher l'e-mail.",
   "s.accountLabelEmpty": "L'e-mail apparaît après la connexion",
-  "s.maskEmail": "Masquer les e-mails sur le widget, ex. s***@gmail.com (partage d’écran)"
+  "s.maskEmail": "Masquer les e-mails sur le widget, ex. s***@gmail.com (partage d’écran)",
+  "h.account": "Compte",
+  "h.mainAccount": "Compte principal",
+  "s.trayAllAccounts": "La barre système affiche la valeur la plus haute de tous les comptes",
+  "tray.acctLine": "{name} : 5 h {five} · hebdo {week}"
 }

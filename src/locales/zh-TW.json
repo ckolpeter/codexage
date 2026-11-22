@@ -190,5 +190,9 @@
   "s.accountLabel": "顯示名稱",
   "s.accountLabelHint": "顯示在小工具的用量條上方。留空則顯示 email。",
   "s.accountLabelEmpty": "登入後會顯示 email",
-  "s.maskEmail": "在小工具上遮蔽 email，例如 s***@gmail.com（螢幕分享時使用）"
+  "s.maskEmail": "在小工具上遮蔽 email，例如 s***@gmail.com（螢幕分享時使用）",
+  "h.account": "帳號",
+  "h.mainAccount": "主帳號",
+  "s.trayAllAccounts": "系統匣顯示所有帳號中最高的數字",
+  "tray.acctLine": "{name}：5 小時 {five}・每週 {week}"
 }
