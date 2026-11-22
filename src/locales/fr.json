@@ -199,5 +199,11 @@
   "p.clipUse": "Les utiliser",
   "p.clipExpired": "Les données du presse-papiers ont expiré. Rechargez la page dans votre navigateur et copiez-la à nouveau.",
   "p.clipGone": "Le presse-papiers ne contient plus de données de connexion. Copiez à nouveau la page.",
-  "p.clipCleared": "Supprimées du presse-papiers."
+  "p.clipCleared": "Supprimées du presse-papiers.",
+  "login.googleTitle": "Google bloque la connexion dans les applications",
+  "login.googleBody": "Google refuse généralement la connexion ici (« Ce navigateur ou cette application n'est peut-être pas sécurisé »). Connectez-vous dans votre navigateur habituel et collez les données de connexion : cela prend quelques secondes.",
+  "login.usePaste": "Utiliser mon navigateur",
+  "login.keepTrying": "Continuer ici",
+  "p.dupAccount": "Ce sont les données de {email}, déjà ajouté. Votre navigateur est sans doute encore connecté à ce compte : connectez-vous à l'autre compte dans une fenêtre privée, puis copiez à nouveau.",
+  "p.extraHint": "Ajouter un autre compte ? Votre navigateur est sans doute connecté au premier. Ouvrez une fenêtre privée (Chrome / Edge : Ctrl+Maj+N), connectez-vous à l'autre compte et ouvrez l'adresse ci-dessous. Après la copie, fermez simplement la fenêtre privée ; ne cliquez pas sur « Se déconnecter »."
 }

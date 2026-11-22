@@ -199,5 +199,11 @@
   "p.clipUse": "使用這份資料",
   "p.clipExpired": "剪貼簿裡的登入資料已經過期。請在瀏覽器重新整理該頁後再複製一次。",
   "p.clipGone": "剪貼簿裡已經沒有登入資料，請再複製一次。",
-  "p.clipCleared": "已從剪貼簿清除。"
+  "p.clipCleared": "已從剪貼簿清除。",
+  "login.googleTitle": "Google 會封鎖 App 內的登入",
+  "login.googleBody": "Google 通常會拒絕在這裡登入（「這個瀏覽器或應用程式可能不安全」）。請改用平常的瀏覽器登入，再把登入資料貼上，只要幾秒鐘。",
+  "login.usePaste": "改用瀏覽器登入",
+  "login.keepTrying": "繼續在這裡試",
+  "p.dupAccount": "這是 {email} 的登入資料，這個帳號已經加入了。你的瀏覽器可能還登入著這個帳號，請用無痕視窗登入另一個帳號後再複製一次。",
+  "p.extraHint": "要新增另一個帳號？你的瀏覽器多半還登入著第一個帳號。請開啟無痕視窗（Chrome／Edge：Ctrl+Shift+N），在那裡登入另一個帳號，再開啟下面的網址。複製完直接關掉無痕視窗即可，不要按「登出」。"
 }

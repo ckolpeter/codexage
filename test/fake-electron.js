@@ -126,5 +126,8 @@ module.exports = {
   globalShortcut: { register: () => true, unregisterAll() {} },
   nativeTheme: { on() {}, shouldUseDarkColors: true },
   net: { isOnline: () => !process.env.OFFLINE, fetch: async (url, opts = {}) => respond(url, opts.headers, null) },
-  dialog: { showSaveDialog: async () => ({ canceled: true }) },
+  dialog: {
+    showSaveDialog: async () => ({ canceled: true }),
+    showMessageBox: async (_w, o) => { (global.__dialogs ||= []).push(o.message); return { response: 0 }; }, // first button
+  },
 };

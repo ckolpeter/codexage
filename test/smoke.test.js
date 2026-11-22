@@ -255,3 +255,24 @@ test('paste window: expired or unrelated clipboard text', () => {
   assert.equal(o.clip.apply.ok, false);
   assert.equal(o.clip.left, 'just some text'); // other clipboard contents are never touched
 });
+
+test('login window reaching Google → paste sign-in offered once, for the same account', () => {
+  const r = run({ SIGNIN: 'none', GOOGLE: '1' });
+  assert.equal(r.google.dialogs.length, 1);
+  assert.equal(r.google.loginClosed, true);
+  assert.equal(r.google.pastePart, 'persist:chatgpt');
+});
+
+test('pasting an account that is already added is refused', () => {
+  const accounts = JSON.stringify({ accounts: [{ partition: 'persist:chatgpt-acct-x', email: '' }] });
+  // the browser was still signed in to the main account
+  const r = run({ PRECONFIG: accounts, CLIP: 'valid', CLIP_EMAIL: 'me@example.com', CLIP_PART: 'persist:chatgpt-acct-x' });
+  assert.equal(r.clip.seen.duplicate, true);
+  assert.equal(r.clip.apply.ok, false);
+  assert.match(r.clip.apply.message, /me@example\.com/);
+  assert.notEqual(r.clip.left, ''); // nothing applied, clipboard left alone
+  // the right account goes through
+  const ok = run({ PRECONFIG: accounts, CLIP: 'valid', CLIP_EMAIL: 'second@example.com', CLIP_PART: 'persist:chatgpt-acct-x' });
+  assert.equal(ok.clip.seen.email, 'second@example.com');
+  assert.equal(ok.clip.apply.ok, true);
+});

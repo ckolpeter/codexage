@@ -199,5 +199,11 @@
   "p.clipUse": "Use it",
   "p.clipExpired": "The sign-in data in the clipboard has expired. Reload the page in your browser and copy it again.",
   "p.clipGone": "The clipboard no longer has sign-in data. Copy the page again.",
-  "p.clipCleared": "Removed it from the clipboard."
+  "p.clipCleared": "Removed it from the clipboard.",
+  "login.googleTitle": "Google blocks sign-in inside apps",
+  "login.googleBody": "Google usually refuses to sign in here (\"This browser or app may not be secure\"). Sign in with your usual browser instead and paste the sign-in data — it takes a few seconds.",
+  "login.usePaste": "Sign in with my browser",
+  "login.keepTrying": "Keep trying here",
+  "p.dupAccount": "This is the sign-in data of {email}, which is already added. Your browser is probably still signed in to that account — sign in to the other account in a private window, then copy again.",
+  "p.extraHint": "Adding another account? Your browser is probably signed in to the first one. Open a private window (Chrome / Edge: Ctrl+Shift+N), sign in to the other account there and open the address below. After copying, just close the private window — don't click \"Log out\"."
 }

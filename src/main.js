@@ -802,6 +802,29 @@ function toggleWidget() {
 }
 
 /** Sign-in window for an account (default: the main account) */
+/**
+ * Google refuses sign-in inside embedded browsers ("This browser or app may not be secure").
+ * As soon as the login window (or one of its popups) reaches Google, offer the paste sign-in instead.
+ */
+function offerPasteOnGoogle(win, part) {
+  let asked = false;
+  const popups = [];
+  const onNav = (_e, url) => {
+    if (asked || !/^https:\/\/accounts\.google\.com\//.test(String(url))) return;
+    asked = true;
+    dialog.showMessageBox(win, {
+      type: 'info', message: t('login.googleTitle'), detail: t('login.googleBody'),
+      buttons: [t('login.usePaste'), t('login.keepTrying')], defaultId: 0, cancelId: 1, noLink: true,
+    }).then(({ response }) => {
+      if (response !== 0) return;
+      for (const w of [...popups, win]) if (!w.isDestroyed()) w.close();
+      openPaste(part);
+    }).catch(() => {});
+  };
+  win.webContents.on('did-navigate', onNav);
+  win.webContents.on('did-create-window', (child) => { popups.push(child); child.webContents.on('did-navigate', onNav); });
+}
+
 function openLogin(part = PARTITION) {
   const open = loginWins.get(part);
   if (open && !open.isDestroyed()) { open.focus(); return; }
@@ -818,6 +841,7 @@ function openLogin(part = PARTITION) {
     action: 'allow',
     overrideBrowserWindowOptions: { autoHideMenuBar: true, webPreferences: { partition: part } },
   }));
+  offerPasteOnGoogle(win, part);
   win.loadURL(CHATGPT + '/auth/login');
   // Already signed in → keep the window open (lets the user switch accounts); close once a new sign-in happens
   let initial;
@@ -868,7 +892,7 @@ function openPaste(part = PARTITION) {
   if (!isAccountPart(part)) return;
   if (pasteWin && !pasteWin.isDestroyed()) pasteWin.close();
   pasteWin = new BrowserWindow({
-    width: 480, height: 600, title: t('win.paste'), resizable: false, autoHideMenuBar: true,
+    width: 480, height: 690, title: t('win.paste'), resizable: false, autoHideMenuBar: true,
     minimizable: false, maximizable: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, sandbox: true },
   });
@@ -877,11 +901,21 @@ function openPaste(part = PARTITION) {
   pasteWin.on('closed', () => { pasteWin = null; });
 }
 
+/** The account (other than `part`) already using this email, or null */
+function emailTakenBy(email, part) {
+  const e = histKey(email);
+  if (!e) return null;
+  if (part !== PARTITION && histKey(config.mainEmail) === e) return { partition: PARTITION, email };
+  return (config.accounts || []).find(a => a.partition !== part && histKey(a.email) === e) || null;
+}
+
 async function applyPasted(text, part = PARTITION) {
   if (!isAccountPart(part)) return { ok: false, message: '' };
   let info;
   try { info = parsePastedSession(text); }
   catch (code) { return { ok: false, message: t(code === 'expired' ? 'p.expired' : 'p.bad') }; }
+  // Copying the session page in a browser that's still signed in to the first account gives that account again
+  if (emailTakenBy(info.email, part)) return { ok: false, message: t('p.dupAccount', { email: info.email }) };
   const persisted = setPasted(part, info);
   tokenCache.delete(part);
   if (part === PARTITION) {
@@ -1147,11 +1181,13 @@ ipcMain.on('use-source', (_e, src) => {
 ipcMain.on('paste:open', (_e, part) => openPaste(part || PARTITION));
 ipcMain.handle('paste:apply', (_e, text, part) => applyPasted(text, part || PARTITION));
 // The paste window looks at the clipboard when it opens or gets focus; the token never goes to the page
-ipcMain.handle('paste:clipboard', () => {
+ipcMain.handle('paste:clipboard', (_e, part) => {
   const c = clipboardSession();
   if (!c) return null;
   if (c.expired) return { expired: true };
-  return { email: usage.accountName(c.info.email, '', config.maskEmail), plan: c.info.plan || '' };
+  const email = usage.accountName(c.info.email, '', config.maskEmail);
+  if (emailTakenBy(c.info.email, part || PARTITION)) return { duplicate: true, email };
+  return { email, plan: c.info.plan || '' };
 });
 ipcMain.handle('paste:apply-clipboard', (_e, part) => {
   const c = clipboardSession();

@@ -38,11 +38,14 @@
   .clip[hidden] { display: none; }
   .clip.bad { background: rgba(204,63,53,.1); border-color: rgba(204,63,53,.4); }
   .clip span { flex: 1; }
+  .hint { margin: 0 0 10px; padding: 8px 10px; border-radius: 6px; background: rgba(201,132,17,.12); border: 1px solid rgba(201,132,17,.45); }
+  .hint[hidden] { display: none; }
 </style>
 </head>
 <body>
   <h1 data-i18n="p.title"></h1>
   <p data-i18n="p.why"></p>
+  <p class="hint" id="extraHint" hidden data-i18n="p.extraHint"></p>
   <ol>
     <li data-i18n="p.step1"></li>
     <li><span data-i18n="p.step2"></span> <a id="openPage">chatgpt.com/api/auth/session</a></li>

@@ -199,5 +199,11 @@
   "p.clipUse": "Usarlos",
   "p.clipExpired": "Los datos del portapapeles han caducado. Recarga la página en tu navegador y cópiala de nuevo.",
   "p.clipGone": "El portapapeles ya no tiene datos de inicio de sesión. Copia la página de nuevo.",
-  "p.clipCleared": "Se borraron del portapapeles."
+  "p.clipCleared": "Se borraron del portapapeles.",
+  "login.googleTitle": "Google bloquea el inicio de sesión dentro de apps",
+  "login.googleBody": "Google suele rechazar el inicio de sesión aquí (\"Este navegador o aplicación puede no ser seguro\"). Inicia sesión en tu navegador habitual y pega los datos de inicio de sesión: tarda unos segundos.",
+  "login.usePaste": "Usar mi navegador",
+  "login.keepTrying": "Seguir intentando aquí",
+  "p.dupAccount": "Estos son los datos de {email}, que ya está añadida. Tu navegador probablemente sigue con esa cuenta: inicia sesión con la otra cuenta en una ventana privada y vuelve a copiar.",
+  "p.extraHint": "¿Añadir otra cuenta? Tu navegador probablemente tiene abierta la primera. Abre una ventana privada (Chrome / Edge: Ctrl+Shift+N), inicia sesión allí con la otra cuenta y abre la dirección de abajo. Después de copiar, solo cierra la ventana privada; no pulses \"Cerrar sesión\"."
 }

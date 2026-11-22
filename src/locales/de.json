@@ -199,5 +199,11 @@
   "p.clipUse": "Verwenden",
   "p.clipExpired": "Die Anmeldedaten in der Zwischenablage sind abgelaufen. Lade die Seite im Browser neu und kopiere sie erneut.",
   "p.clipGone": "In der Zwischenablage sind keine Anmeldedaten mehr. Kopiere die Seite erneut.",
-  "p.clipCleared": "Aus der Zwischenablage entfernt."
+  "p.clipCleared": "Aus der Zwischenablage entfernt.",
+  "login.googleTitle": "Google blockiert die Anmeldung in Apps",
+  "login.googleBody": "Google lehnt die Anmeldung hier meist ab („Dieser Browser oder diese App ist möglicherweise nicht sicher“). Melde dich stattdessen in deinem normalen Browser an und füge die Anmeldedaten ein – das dauert nur Sekunden.",
+  "login.usePaste": "Im Browser anmelden",
+  "login.keepTrying": "Hier weiter versuchen",
+  "p.dupAccount": "Das sind die Anmeldedaten von {email}; dieses Konto ist schon hinzugefügt. Dein Browser ist wahrscheinlich noch damit angemeldet – melde dich in einem privaten Fenster mit dem anderen Konto an und kopiere erneut.",
+  "p.extraHint": "Weiteres Konto hinzufügen? Dein Browser ist wahrscheinlich mit dem ersten angemeldet. Öffne ein privates Fenster (Chrome / Edge: Strg+Umschalt+N), melde dich dort mit dem anderen Konto an und öffne die Adresse unten. Nach dem Kopieren das private Fenster einfach schließen – nicht auf „Abmelden“ klicken."
 }

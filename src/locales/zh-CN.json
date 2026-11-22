@@ -199,5 +199,11 @@
   "p.clipUse": "使用这份资料",
   "p.clipExpired": "剪贴板里的登录资料已经过期。请在浏览器刷新该页后再复制一次。",
   "p.clipGone": "剪贴板里已经没有登录资料，请再复制一次。",
-  "p.clipCleared": "已从剪贴板清除。"
+  "p.clipCleared": "已从剪贴板清除。",
+  "login.googleTitle": "Google 会阻止在应用内登录",
+  "login.googleBody": "Google 通常会拒绝在这里登录（“此浏览器或应用可能不安全”）。请改用平常的浏览器登录，再把登录资料粘贴进来，只要几秒钟。",
+  "login.usePaste": "改用浏览器登录",
+  "login.keepTrying": "继续在这里尝试",
+  "p.dupAccount": "这是 {email} 的登录资料，这个账号已经添加了。你的浏览器可能还登录着这个账号，请用无痕窗口登录另一个账号后再复制一次。",
+  "p.extraHint": "要添加另一个账号？你的浏览器多半还登录着第一个账号。请打开无痕窗口（Chrome／Edge：Ctrl+Shift+N），在那里登录另一个账号，再打开下面的网址。复制完直接关闭无痕窗口即可，不要点“退出登录”。"
 }

@@ -199,5 +199,11 @@
   "p.clipUse": "Usar",
   "p.clipExpired": "Os dados de login na área de transferência expiraram. Recarregue a página no navegador e copie de novo.",
   "p.clipGone": "A área de transferência não tem mais dados de login. Copie a página de novo.",
-  "p.clipCleared": "Removidos da área de transferência."
+  "p.clipCleared": "Removidos da área de transferência.",
+  "login.googleTitle": "O Google bloqueia o login dentro de apps",
+  "login.googleBody": "O Google geralmente recusa o login aqui (\"Este navegador ou app pode não ser seguro\"). Entre no seu navegador de sempre e cole os dados de login — leva poucos segundos.",
+  "login.usePaste": "Entrar pelo navegador",
+  "login.keepTrying": "Continuar tentando aqui",
+  "p.dupAccount": "Estes são os dados de {email}, que já foi adicionada. Seu navegador provavelmente ainda está nessa conta: entre na outra conta em uma janela anônima e copie de novo.",
+  "p.extraHint": "Adicionar outra conta? Seu navegador provavelmente está na primeira. Abra uma janela anônima (Chrome / Edge: Ctrl+Shift+N), entre na outra conta e abra o endereço abaixo. Depois de copiar, apenas feche a janela anônima; não clique em \"Sair\"."
 }

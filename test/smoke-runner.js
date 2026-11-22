@@ -60,12 +60,22 @@ setTimeout(async () => {
     const s = Math.floor(Date.now() / 1000);
     const claims = { valid: { iat: s - 3600, exp: s + 10 * 86400 }, expired: { iat: s - 11 * 86400, exp: s - 60 } }[process.env.CLIP];
     global.__clip = claims
-      ? JSON.stringify({ user: { email: 'clip@example.com' }, account: { id: 'acc-c', planType: 'pro' }, accessToken: global.__jwt(claims) })
+      ? JSON.stringify({ user: { email: process.env.CLIP_EMAIL || 'clip@example.com' }, account: { id: 'acc-c', planType: 'pro' }, accessToken: global.__jwt(claims) })
       : process.env.CLIP;
-    const seen = await ipc['paste:clipboard']();
-    const apply = await ipc['paste:apply-clipboard']({});
+    const seen = await ipc['paste:clipboard']({}, process.env.CLIP_PART);
+    const apply = await ipc['paste:apply-clipboard']({}, process.env.CLIP_PART);
     await new Promise(r => setTimeout(r, 300));
     clip = { seen, apply, left: global.__clip };
+  }
+  // GOOGLE: the login window reaches Google's sign-in page → the paste sign-in is offered (and accepted)
+  let google;
+  if (process.env.GOOGLE) {
+    const login = global.__windows.find(w => String(w.url || '').includes('/auth/login'));
+    login.webContents.handlers['did-navigate']({}, 'https://accounts.google.com/v3/signin/identifier?flowName=x');
+    login.webContents.handlers['did-navigate']({}, 'https://accounts.google.com/v3/signin/rejected'); // asked once
+    await new Promise(r => setTimeout(r, 50));
+    const paste = global.__windows.find(w => String(w.file || '').endsWith('paste.html') && !w.destroyed);
+    google = { dialogs: global.__dialogs || [], loginClosed: !!login.destroyed, pastePart: paste?.query?.part || null };
   }
   const state = global.__sent.filter(s => s[0] === 'usage').pop()?.[1];
   const settings = await ipc['settings:get']();
@@ -78,7 +88,7 @@ setTimeout(async () => {
   process.stdout.write('\n@@RESULT@@' + JSON.stringify({
     state, tooltip: global.__tooltip, trayImage: !!global.__trayImage, trayTitle: global.__trayTitle || '', platform: process.platform,
     languages: settings.languages.length, thresholds: after.config.notifyThresholds, signIn: settings.signIn,
-    reqs: global.__reqs, paste, workspaces, history, clip,
+    reqs: global.__reqs, paste, workspaces, history, clip, google,
     pastedStored: fs.existsSync(pastedFile) ? fs.readFileSync(pastedFile, 'utf8') : null,
     loginWindows: global.__windows.filter(w => String(w.url || '').includes('/auth/login')).length,
     notes: global.__notes || [],

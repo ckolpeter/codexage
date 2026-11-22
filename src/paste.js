@@ -12,6 +12,8 @@ const t = (k, v = {}) => (DICT[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? 
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.title = t('win.paste');
   $('text').placeholder = t('p.placeholder');
+  // Extra account: the browser is usually signed in to the first one → use a private window
+  $('extraHint').hidden = !PART || PART === 'persist:chatgpt';
   checkClipboard();
 })();
 
@@ -19,13 +21,16 @@ const t = (k, v = {}) => (DICT[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? 
 let busy = false;
 async function checkClipboard() {
   if (busy) return;
-  const c = await window.api.paste.clipboard();
+  const c = await window.api.paste.clipboard(PART);
   const box = $('clip');
   box.hidden = !c;
   if (!c) return;
-  box.classList.toggle('bad', !!c.expired);
-  $('clipUse').hidden = !!c.expired;
-  $('clipText').textContent = c.expired ? t('p.clipExpired') : t('p.clipFound', { email: c.email + (c.plan ? ` (${c.plan})` : '') });
+  const bad = c.expired || c.duplicate;
+  box.classList.toggle('bad', !!bad);
+  $('clipUse').hidden = !!bad;
+  $('clipText').textContent = c.expired ? t('p.clipExpired')
+    : c.duplicate ? t('p.dupAccount', { email: c.email })
+      : t('p.clipFound', { email: c.email + (c.plan ? ` (${c.plan})` : '') });
 }
 window.addEventListener('focus', checkClipboard);
 
