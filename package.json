@@ -1,0 +1,135 @@
+{
+  "name": "codexage",
+  "productName": "Codexage",
+  "version": "0.1.0",
+  "description": "Unofficial floating desktop widget for OpenAI Codex / ChatGPT plan usage limits (5-hour & weekly). 桌面浮動顯示 Codex 使用量。",
+  "main": "src/main.js",
+  "author": {
+    "name": "ckolpeter",
+    "email": "ckolpeter@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "fix-electron": "powershell -ExecutionPolicy Bypass -File scripts/fix-electron.ps1",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:win:local": "electron-builder --win nsis --config.electronDist=node_modules/electron/dist",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.0"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "allowScripts": {
+    "electron": true,
+    "electron-winstaller": true
+  },
+  "build": {
+    "appId": "io.github.ckolpeter.codexage",
+    "productName": "Codexage",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "LICENSE"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-${os}-${arch}-portable.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.productivity",
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Utility",
+      "maintainer": "ckolpeter <ckolpeter@users.noreply.github.com>"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "releaseType": "draft"
+      }
+    ]
+  },
+  "homepage": "https://github.com/ckolpeter/codexage",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ckolpeter/codexage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ckolpeter/codexage/issues"
+  },
+  "keywords": [
+    "codex",
+    "chatgpt",
+    "openai",
+    "usage",
+    "widget",
+    "electron",
+    "desktop",
+    "rate-limit"
+  ]
+}

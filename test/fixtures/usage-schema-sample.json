@@ -1,0 +1,43 @@
+{
+  "plan_type": "plus",
+  "rate_limit": {
+    "allowed": true,
+    "limit_reached": false,
+    "primary_window": {
+      "used_percent": 42,
+      "limit_window_seconds": 18000,
+      "reset_after_seconds": 7200,
+      "reset_at": 1795399200
+    },
+    "secondary_window": {
+      "used_percent": 17,
+      "limit_window_seconds": 604800,
+      "reset_after_seconds": 345600,
+      "reset_at": 1795737600
+    }
+  },
+  "credits": {
+    "has_credits": true,
+    "unlimited": false,
+    "balance": "9.99"
+  },
+  "spend_control": null,
+  "additional_rate_limits": [
+    {
+      "limit_name": "codex_other",
+      "metered_feature": "codex_other",
+      "rate_limit": {
+        "allowed": true,
+        "limit_reached": false,
+        "primary_window": {
+          "used_percent": 70,
+          "limit_window_seconds": 18000,
+          "reset_after_seconds": 900,
+          "reset_at": 1795393800
+        },
+        "secondary_window": null
+      }
+    }
+  ],
+  "rate_limit_reached_type": null
+}

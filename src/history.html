@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>Codexage</title>
+<style>
+  :root {
+    --surface: #1b1d22;
+    --card: #24272e;
+    --fg: #eef0f4;
+    --fg2: #c3c8d2;
+    --muted: #8a909c;
+    --grid: rgba(255,255,255,0.07);
+    --axis: rgba(255,255,255,0.18);
+    --line: #5b8def;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px 18px 18px;
+    font: 12px/1.4 -apple-system, "Segoe UI", "Microsoft JhengHei UI", "PingFang TC", sans-serif;
+    background: var(--surface); color: var(--fg);
+    visibility: hidden;
+  }
+  body.ready { visibility: visible; }
+  .stats { display: flex; gap: 10px; margin-bottom: 14px; }
+  .stat { flex: 1; background: var(--card); border-radius: 8px; padding: 8px 10px; }
+  .stat .v { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat .k { color: var(--muted); font-size: 11px; }
+  .chart { background: var(--card); border-radius: 10px; padding: 10px 12px 6px; margin-bottom: 12px; position: relative; }
+  .chart h3 { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--fg2); }
+  svg { display: block; width: 100%; overflow: visible; }
+  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
+  .tip {
+    position: absolute; pointer-events: none; background: #121418; border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px; padding: 5px 8px; font-size: 11px; white-space: nowrap; display: none; z-index: 2;
+  }
+  .tip .tv { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tip .tk { color: var(--muted); }
+  .foot { color: var(--muted); font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+  button { font: inherit; color: var(--fg2); background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+  button:hover { background: rgba(255,255,255,0.06); }
+</style>
+</head>
+<body>
+  <div class="stats" id="stats"></div>
+  <div class="chart" id="c5"><h3 data-i18n="h.five"></h3><div class="plot"></div><div class="tip"></div></div>
+  <div class="chart" id="c7"><h3 data-i18n="h.week"></h3><div class="plot"></div><div class="tip"></div></div>
+  <div class="foot"><span data-i18n="h.note"></span><span><button id="export" data-i18n="h.export"></button> <button id="clear" data-i18n="h.clear"></button></span></div>
+  <script src="history-view.js"></script>
+</body>
+</html>

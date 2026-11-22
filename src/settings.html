@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>Codexage</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 18px 20px;
+    font: 13px/1.5 -apple-system, "Segoe UI", "Microsoft JhengHei UI", "PingFang TC", sans-serif;
+    color: #23262d; background: #f6f7f9;
+    visibility: hidden; /* shown after translations load */
+  }
+  body.ready { visibility: visible; }
+  h2 { font-size: 13px; margin: 18px 0 8px; color: #7a808c; font-weight: 600; letter-spacing: .3px; }
+  h2:first-child { margin-top: 0; }
+  label.opt { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .field { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; gap: 12px; }
+  input[type=number] { width: 80px; padding: 3px 6px; }
+  input[type=range] { width: 160px; }
+  select { padding: 4px 6px; font: inherit; }
+  button {
+    font: inherit; padding: 5px 12px; border-radius: 6px; border: 1px solid #cfd4dc;
+    background: #fff; cursor: pointer;
+  }
+  button.primary { background: #5b8def; color: #fff; border-color: #5b8def; }
+  .row { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .hint { color: #7a808c; font-size: 12px; margin: 4px 0; word-break: break-all; }
+  .status { font-size: 12px; margin-top: 6px; }
+  .ok { color: #2f8a4f; } .bad { color: #c0392b; }
+  .acctRow { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+  .acctRow .nm { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .acctRow button { padding: 3px 8px; font-size: 12px; }
+  .foot { margin-top: 18px; color: #9aa0ab; font-size: 11px; }
+</style>
+</head>
+<body>
+  <div class="field" style="margin-top:0">
+    <h2 style="margin:0" data-i18n="s.language"></h2>
+    <select id="language"></select>
+  </div>
+
+  <h2 data-i18n="s.source"></h2>
+  <label class="opt"><input type="radio" name="source" value="web"> <span data-i18n="s.sourceWeb"></span></label>
+  <label class="opt"><input type="radio" name="source" value="cli"> <span data-i18n="s.sourceCli"></span></label>
+  <div class="hint" id="srcHint"></div>
+
+  <div id="webBox">
+    <div class="row">
+      <button class="primary" id="login" data-i18n="s.login"></button>
+      <button id="paste" data-i18n="s.paste"></button>
+      <button id="logout" data-i18n="s.logout"></button>
+    </div>
+    <div class="status" id="sessStatus"></div>
+  </div>
+
+  <div class="field" style="margin-top:10px">
+    <span data-i18n="s.workspace"></span>
+    <select id="workspace" style="width:250px"><option value="" data-i18n="s.workspaceAuto"></option></select>
+  </div>
+  <div class="hint" id="wsHint"></div>
+
+  <h2 data-i18n="a.title"></h2>
+  <div class="hint" data-i18n="a.hint"></div>
+  <div id="acctList"></div>
+  <div class="row">
+    <button id="acctAdd" data-i18n="a.add"></button>
+    <button id="acctAddPaste" data-i18n="a.addPaste"></button>
+  </div>
+
+  <h2 data-i18n="s.display"></h2>
+  <div class="field"><span data-i18n="s.theme"></span>
+    <select id="theme">
+      <option value="dark" data-i18n="s.themeDark"></option>
+      <option value="light" data-i18n="s.themeLight"></option>
+      <option value="system" data-i18n="s.themeSystem"></option>
+    </select></div>
+  <div class="field"><span data-i18n="s.scale"></span><span><input type="range" id="scale" min="0.8" max="1.5" step="0.1"> <span id="scaleVal" class="hint"></span></span></div>
+  <div class="field"><span data-i18n="s.interval"></span><input type="number" id="interval" min="30" step="30"></div>
+  <div class="field"><span data-i18n="s.opacity"></span><input type="range" id="opacity" min="0.3" max="1" step="0.05"></div>
+  <label class="opt"><input type="checkbox" id="clickThrough"> <span data-i18n="s.clickThrough"></span></label>
+  <div class="field"><span data-i18n="s.hotkey"></span><input type="text" id="hotkey" style="width:190px;padding:3px 6px" placeholder="CommandOrControl+Alt+X"></div>
+  <div class="hint" id="hotkeyHint"></div>
+  <label class="opt" id="fsRow"><input type="checkbox" id="hideOnFullscreen"> <span data-i18n="s.hideOnFullscreen"></span></label>
+  <label class="opt"><input type="checkbox" id="snapEdges"> <span data-i18n="s.snapEdges"></span></label>
+  <label class="opt"><input type="checkbox" id="alwaysOnTop"> <span data-i18n="s.alwaysOnTop"></span></label>
+  <label class="opt"><input type="checkbox" id="compact"> <span data-i18n="s.compact"></span></label>
+  <div class="field"><span data-i18n="s.trayMetric"></span>
+    <select id="trayMetric">
+      <option value="five_hour" data-i18n="s.trayFive"></option>
+      <option value="seven_day" data-i18n="s.trayWeek"></option>
+      <option value="max" data-i18n="s.trayMax"></option>
+      <option value="off" data-i18n="s.trayOff"></option>
+    </select></div>
+
+  <h2 data-i18n="s.notifications"></h2>
+  <label class="opt"><input type="checkbox" id="notify"> <span data-i18n="s.notify"></span></label>
+  <div class="field"><span data-i18n="s.thresholds"></span><input type="text" id="thresholds" style="width:110px;padding:3px 6px" placeholder="80, 95"></div>
+  <label class="opt"><input type="checkbox" id="notifyReset"> <span data-i18n="s.notifyReset"></span></label>
+  <div class="field">
+    <label class="opt" style="margin:0"><input type="checkbox" id="quietEnabled"> <span data-i18n="s.quiet"></span></label>
+    <span><input type="time" id="quietStart"> – <input type="time" id="quietEnd"></span>
+  </div>
+
+  <h2 data-i18n="s.system"></h2>
+  <label class="opt"><input type="checkbox" id="openAtLogin"> <span data-i18n="s.openAtLogin"></span></label>
+  <label class="opt"><input type="checkbox" id="autoUpdate"> <span data-i18n="s.autoUpdate"></span></label>
+
+  <div class="foot" id="foot"></div>
+  <script src="settings.js"></script>
+</body>
+</html>

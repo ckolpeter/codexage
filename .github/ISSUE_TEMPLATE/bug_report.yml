@@ -1,0 +1,36 @@
+name: 問題回報 / Bug report
+description: 小工具顯示錯誤、當掉或抓不到資料
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "⚠️ 請勿貼上 accessToken、auth.json、Cookie 或任何登入憑證。Never paste your access token, auth.json, cookies or any credentials."
+  - type: dropdown
+    id: os
+    attributes:
+      label: 作業系統 / OS
+      options: [Windows 11, Windows 10, macOS (Apple Silicon), macOS (Intel), Linux]
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: Codexage 版本 / Version, placeholder: v0.1.0 }
+    validations: { required: true }
+  - type: dropdown
+    id: source
+    attributes:
+      label: 資料來源 / Data source
+      options: [ChatGPT 登入 / sign-in, 貼上登入資料 / pasted session, Codex CLI 憑證 / credentials]
+  - type: dropdown
+    id: plan
+    attributes:
+      label: 方案 / Plan
+      options: [Plus, Pro, Business / Team, Enterprise, Edu, Go, Free, 其他 / Other]
+  - type: textarea
+    id: what
+    attributes:
+      label: 發生了什麼 / What happened
+      description: 小工具上的錯誤訊息、截圖（請遮住個人資訊）
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes: { label: 重現步驟 / Steps to reproduce }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>Codexage</title>
+<style>
+  :root { color-scheme: light dark; --accent: #5b8def; --muted: #888; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 18px 20px;
+    font: 13px/1.5 -apple-system, "Segoe UI", "Microsoft JhengHei UI", "PingFang TC", sans-serif;
+  }
+  h1 { font-size: 15px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; }
+  ol { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  a { color: var(--accent); cursor: pointer; }
+  code { font-family: Consolas, monospace; font-size: 12px; }
+  textarea {
+    width: 100%; height: 150px; resize: none; font: 11px/1.4 Consolas, monospace;
+    padding: 8px; border-radius: 6px; border: 1px solid rgba(128,128,128,.5);
+  }
+  .warn { color: var(--muted); font-size: 12px; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+  button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 6px 16px;
+    font: inherit; cursor: pointer;
+  }
+  button:disabled { opacity: .6; cursor: default; }
+  #result { flex: 1; font-size: 12px; }
+  #result.ok { color: #2f8f55; }
+  #result.bad { color: #cc3f35; }
+</style>
+</head>
+<body>
+  <h1 data-i18n="p.title"></h1>
+  <p data-i18n="p.why"></p>
+  <ol>
+    <li data-i18n="p.step1"></li>
+    <li><span data-i18n="p.step2"></span> <a id="openPage">chatgpt.com/api/auth/session</a></li>
+    <li data-i18n="p.step3"></li>
+  </ol>
+  <textarea id="text" spellcheck="false"></textarea>
+  <p class="warn" data-i18n="p.warn"></p>
+  <div class="row">
+    <span id="result"></span>
+    <button id="apply" data-i18n="p.apply"></button>
+  </div>
+  <script src="paste.js"></script>
+</body>
+</html>
