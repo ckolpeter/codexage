@@ -100,9 +100,35 @@ test('pasted session about to expire: one reminder, clickable, shown in the widg
   assert.equal(r.pasteWindowAfterClick, true);
 });
 
-test('usage-limit resets reach the widget state', () => {
+test('usage-limit resets reach the widget state, with the soonest expiry', () => {
   const r = run({ FIXTURE: FIX('usage-plus-real.json') });
-  assert.deepEqual(r.state.resets, { available: 3, applicable: 0 });
+  assert.equal(r.state.resets.available, 3);
+  const soon = Date.parse(r.state.resets.nextExpiry) - Date.now();
+  assert.ok(soon > 719 * 3600e3 && soon < 721 * 3600e3); // the 30-day one, not 2099 or the consumed one
+  assert.equal(r.reqs.filter(q => q.path === '/backend-api/wham/rate-limit-reset-credits').length, 1);
+  assert.equal(r.notes.length, 0); // nothing expires within a day
+});
+
+test('no reset credits → the details endpoint is never called', () => {
+  const r = run();
+  assert.equal(r.state.resets, null);
+  assert.equal(r.reqs.filter(q => q.path === '/backend-api/wham/rate-limit-reset-credits').length, 0);
+});
+
+test('a reset expiring within a day → one reminder', () => {
+  const r = run({ FIXTURE: FIX('usage-plus-real.json'), RESET_EXPIRY_HOURS: '5' });
+  const n = r.notes.filter(x => /\/usage/.test(x.body));
+  assert.equal(n.length, 1);
+});
+
+test('limit reached: reason, unavailable model, threshold notifications', () => {
+  const r = run({ FIXTURE: FIX('usage-limit-reached.json') });
+  assert.equal(r.state.status, 'ok');
+  assert.equal(r.state.blocked, 'rate_limit_reached');
+  assert.deepEqual(r.state.modelsUnavailable.map(m => m.name), ['GPT-6 Astra']);
+  assert.equal(r.state.windows.find(w => w.key === 'five_hour').eta.exhausted, true);
+  // 5-hour at 100% → one (loud) notification for the top threshold only
+  assert.equal(r.notes.filter(x => /100%/.test(x.title)).length, 1);
 });
 
 test('pasted garbage is refused without touching the stored session', () => {

@@ -60,8 +60,10 @@ test('every i18n key used in src/ exists in en.json', () => {
     .map(f => fs.readFileSync(path.join(__dirname, '..', 'src', f), 'utf8')).join('\n');
   const used = new Set([...src.matchAll(/['"`]((?:err|label|s|w|p|h|a|menu|notify|tray|win|msg)\.[a-zA-Z][a-zA-Z._]*)['"`]/g)]
     .map(m => m[1]).filter(k => !/\.(png|js|html|json)$/.test(k)));
-  // keys built at runtime from window keys
+  // keys built at runtime from window keys and blocked reasons
   for (const k of ['label.five_hour', 'label.seven_day']) used.add(k);
+  for (const b of ['rate_limit_reached', 'workspace_owner_credits_depleted', 'workspace_member_credits_depleted',
+    'workspace_owner_usage_limit_reached', 'workspace_member_usage_limit_reached', 'spend']) used.add(`w.blocked.${b}`);
   const missing = [...used].filter(k => !(k in en));
   assert.deepEqual(missing, []);
 });

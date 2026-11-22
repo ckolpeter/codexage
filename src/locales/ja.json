@@ -172,5 +172,19 @@
   "w.expiring": "⚠ サインイン情報はあと {left} で期限切れ",
   "w.repaste": "貼り直す",
   "notify.expiringTitle": "Codexage のサインイン情報がまもなく期限切れ",
-  "notify.expiringBody": "{time} に期限切れになります。クリックして chatgpt.com/api/auth/session から貼り直してください"
+  "notify.expiringBody": "{time} に期限切れになります。クリックして chatgpt.com/api/auth/session から貼り直してください",
+  "label.spendLimit": "月間クレジット上限",
+  "w.spendDetail": "{limit} クレジット中 {used} 使用",
+  "w.blocked.rate_limit_reached": "使用上限に達しました",
+  "w.blocked.workspace_owner_credits_depleted": "ワークスペースのクレジットがなくなりました。Codex を使い続けるにはクレジットを追加してください",
+  "w.blocked.workspace_member_credits_depleted": "ワークスペースのクレジットがなくなりました。オーナーに追加を依頼してください",
+  "w.blocked.workspace_owner_usage_limit_reached": "このワークスペースで設定した使用上限に達しました。ワークスペースの設定で引き上げられます",
+  "w.blocked.workspace_member_usage_limit_reached": "ワークスペースで設定された使用上限に達しました。オーナーに引き上げを依頼してください",
+  "w.blocked.spend": "月間クレジット上限に達しました",
+  "w.useReset": "上限リセットが {n} 回分あります。Codex CLI で /usage と入力すると使えます",
+  "w.modelUnavailable": "{model} は {time} まで使用できません",
+  "w.modelUnavailableNoTime": "{model} は現在使用できません",
+  "w.resetsNext": "次の期限 {time}",
+  "notify.resetExpiringTitle": "上限リセットの期限がまもなく切れます",
+  "notify.resetExpiringBody": "{time} に期限切れになります。それまでに Codex CLI で /usage と入力して使ってください"
 }

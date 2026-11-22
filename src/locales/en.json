@@ -172,5 +172,19 @@
   "w.expiring": "⚠ Sign-in expires in {left}",
   "w.repaste": "Paste again",
   "notify.expiringTitle": "Codexage sign-in expires soon",
-  "notify.expiringBody": "Expires {time}. Click to paste a fresh session from chatgpt.com/api/auth/session"
+  "notify.expiringBody": "Expires {time}. Click to paste a fresh session from chatgpt.com/api/auth/session",
+  "label.spendLimit": "Monthly credit limit",
+  "w.spendDetail": "{used} of {limit} credits used",
+  "w.blocked.rate_limit_reached": "Usage limit reached",
+  "w.blocked.workspace_owner_credits_depleted": "Your workspace is out of credits. Add credits to keep using Codex",
+  "w.blocked.workspace_member_credits_depleted": "Your workspace is out of credits. Ask the workspace owner to add more",
+  "w.blocked.workspace_owner_usage_limit_reached": "You've hit the usage limit set for this workspace. Raise it in the workspace settings",
+  "w.blocked.workspace_member_usage_limit_reached": "You've hit the usage limit set by your workspace. Ask the owner for an increase",
+  "w.blocked.spend": "Monthly credit limit reached",
+  "w.useReset": "You have {n} usage limit resets: run /usage in Codex CLI to use one",
+  "w.modelUnavailable": "{model} unavailable until {time}",
+  "w.modelUnavailableNoTime": "{model} is unavailable right now",
+  "w.resetsNext": "next expires {time}",
+  "notify.resetExpiringTitle": "A usage limit reset expires soon",
+  "notify.resetExpiringBody": "It expires {time}. Use it in Codex CLI with /usage before then"
 }

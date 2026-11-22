@@ -13,6 +13,7 @@ Windows · macOS · Linux
 - 5-hour and weekly usage bars with reset countdowns. The limit is shared by Codex, ChatGPT Work, Workspace Agents and ChatGPT for Excel
 - Works when there is **only a weekly limit** (windows are classified by length, not by position)
 - Code review and other extra limits, credits, and how many **usage limit resets** you have left (use them in Codex CLI with `/usage`), whenever the API reports them
+- When you hit a limit: **why** (your own limit, workspace out of credits, or a workspace cap), which models are unavailable and until when, and a reminder before a usage limit reset expires. Business / Enterprise: your **monthly credit limit** ("8,000 of 25,000 credits used")
 - **Run-out prediction**: "At this pace, runs out in 1h 18m", based on your pace over the last hour
 - A **pace marker** on each bar shows how much of the window has elapsed; an unused 5-hour window shows "not started" instead of a frozen countdown
 - **Usage history** charts (5-hour over 24 hours, weekly over 7 days) and CSV export

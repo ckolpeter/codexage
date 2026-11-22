@@ -69,7 +69,7 @@ function rowHtml(w) {
   return `<div class="row ${w.primary ? '' : 'secondary'} ${w.limitReached ? 'reached' : ''}">
     <div class="line"><span class="label">${esc(labelOf(w))}</span><span class="pct">${p}%</span></div>
     <div class="bar"><div class="fill" style="width:${w.pct}%;background:${color(w.pct)}"></div>${pace}</div>
-    <div class="reset">${esc(w.idle ? t('w.idle') : fmtLeft(w.resetsAt))}</div>
+    <div class="reset">${esc(w.idle ? t('w.idle') : [detailOf(w), fmtLeft(w.resetsAt)].filter(Boolean).join(' · '))}</div>
     ${etaHtml(w)}
   </div>`;
 }
@@ -102,9 +102,46 @@ function othersHtml(others) {
   }).join('');
 }
 
-/** Usage-limit resets the user can spend in Codex CLI (/usage) */
+const fmtNum = (n) => { try { return new Intl.NumberFormat(LANG).format(n); } catch { return String(n); } };
+/** Extra line under a bar, e.g. "8,000 of 25,000 credits used" */
+function detailOf(w) {
+  if (!w.detailKey) return '';
+  const v = {};
+  for (const [k, x] of Object.entries(w.detailVars || {})) v[k] = typeof x === 'number' ? fmtNum(x) : x;
+  return t(w.detailKey, v);
+}
+/** Short date-time; time only when it's today */
+function fmtWhen(iso) {
+  const d = new Date(iso);
+  const today = d.toDateString() === new Date().toDateString();
+  return d.toLocaleString(LANG, today
+    ? { hour: '2-digit', minute: '2-digit' }
+    : { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+/** Usage-limit resets the user can spend in Codex CLI (/usage), with the soonest expiry below */
 function resetsHtml(r) {
-  return `<div class="row secondary" title="${esc(t('w.resetsTip'))}"><div class="line"><span class="label">${esc(t('label.resets'))}</span><span class="pct money">${esc(String(r.available))}</span></div></div>`;
+  const next = r.nextExpiry ? `<div class="reset">${esc(t('w.resetsNext', { time: fmtWhen(r.nextExpiry) }))}</div>` : '';
+  return `<div class="row secondary" title="${esc(t('w.resetsTip'))}"><div class="line"><span class="label">${esc(t('label.resets'))}</span><span class="pct money">${esc(String(r.available))}</span></div>${next}</div>`;
+}
+
+/** Why usage is blocked (top of the card), plus the way out when there is one */
+function blockedHtml(data) {
+  const known = ['rate_limit_reached', 'workspace_owner_credits_depleted', 'workspace_member_credits_depleted',
+    'workspace_owner_usage_limit_reached', 'workspace_member_usage_limit_reached', 'spend'];
+  const type = known.includes(data.blocked) ? data.blocked : 'rate_limit_reached';
+  let html = `<div class="note badnote">⛔ ${esc(t(`w.blocked.${type}`))}</div>`;
+  if (type === 'rate_limit_reached' && data.resets?.available > 0) {
+    html += `<div class="note">${esc(t('w.useReset', { n: data.resets.available }))}</div>`;
+  }
+  return html;
+}
+
+/** Models that can't be used right now, and when they come back */
+function modelsHtml(list) {
+  return list.map(m => `<div class="note">${esc(m.availableAt
+    ? t('w.modelUnavailable', { model: m.name, time: fmtWhen(m.availableAt) })
+    : t('w.modelUnavailableNoTime', { model: m.name }))}</div>`).join('');
 }
 
 /** Pasted sign-in about to expire: warning + link to paste a fresh one */
@@ -129,7 +166,10 @@ function render() {
     let ws = data.windows;
     if (opts.compact) ws = ws.filter(w => w.primary);
     let html = ws.map(rowHtml).join('');
+    // Blocked: say why first (also in compact mode)
+    if (data.blocked) html = blockedHtml(data) + html;
     if (state.others && state.others.length && state.email) html = `<div class="aname">${esc(state.email)}</div>` + html;
+    if (!opts.compact && data.modelsUnavailable?.length) html += modelsHtml(data.modelsUnavailable);
     if (!opts.compact && data.credits) html += creditsHtml(data.credits);
     if (!opts.compact && data.resets) html += resetsHtml(data.resets);
     // Shown even in compact mode: the widget stops working once it expires

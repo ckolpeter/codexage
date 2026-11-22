@@ -172,5 +172,19 @@
   "w.expiring": "⚠ A sessão expira em {left}",
   "w.repaste": "Colar de novo",
   "notify.expiringTitle": "A sessão do Codexage expira em breve",
-  "notify.expiringBody": "Expira em {time}. Clique para colar uma sessão nova de chatgpt.com/api/auth/session"
+  "notify.expiringBody": "Expira em {time}. Clique para colar uma sessão nova de chatgpt.com/api/auth/session",
+  "label.spendLimit": "Limite mensal de créditos",
+  "w.spendDetail": "{used} de {limit} créditos usados",
+  "w.blocked.rate_limit_reached": "Limite de uso atingido",
+  "w.blocked.workspace_owner_credits_depleted": "Seu espaço de trabalho ficou sem créditos. Adicione créditos para continuar usando o Codex",
+  "w.blocked.workspace_member_credits_depleted": "Seu espaço de trabalho ficou sem créditos. Peça ao proprietário para adicionar mais",
+  "w.blocked.workspace_owner_usage_limit_reached": "Você atingiu o limite de uso definido para este espaço de trabalho. Aumente-o nas configurações",
+  "w.blocked.workspace_member_usage_limit_reached": "Você atingiu o limite de uso definido pelo seu espaço de trabalho. Peça um aumento ao proprietário",
+  "w.blocked.spend": "Limite mensal de créditos atingido",
+  "w.useReset": "Você tem {n} renovações de limite: rode /usage no Codex CLI para usar uma",
+  "w.modelUnavailable": "{model} indisponível até {time}",
+  "w.modelUnavailableNoTime": "{model} está indisponível no momento",
+  "w.resetsNext": "a próxima expira em {time}",
+  "notify.resetExpiringTitle": "Uma renovação de limite expira em breve",
+  "notify.resetExpiringBody": "Expira em {time}. Use antes disso no Codex CLI com /usage"
 }

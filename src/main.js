@@ -31,6 +31,7 @@ const ACCT_PREFIX = 'persist:chatgpt-acct-';
 const CHATGPT = 'https://chatgpt.com';
 const USAGE_PATH = '/backend-api/wham/usage';
 const ACCOUNTS_PATH = '/backend-api/wham/accounts/check';
+const RESET_CREDITS_PATH = '/backend-api/wham/rate-limit-reset-credits';
 const USAGE_PAGE = CHATGPT + '/codex/settings/usage';
 const SESSION_PAGE = CHATGPT + '/api/auth/session';
 const SESSION_COOKIE = '__Secure-next-auth.session-token'; // may be split into .0 / .1 chunks
@@ -393,20 +394,58 @@ async function fetchCliUsage() {
   return { raw: r.json, plan: a.plan, email: a.email || r.json?.email || '' };
 }
 
-/** Workspaces the main account can use (Settings → Workspace) */
-async function listWorkspaces() {
-  let r;
+/**
+ * GET another chatgpt.com endpoint as the main account, with whatever sign-in the current source uses.
+ * workspace: also send the chatgpt-account-id header (not wanted when listing workspaces).
+ */
+async function mainGetJson(pathname, { workspace = true } = {}) {
   if (config.source === 'cli') {
     const a = readCodexAuth();
-    const res = await bearerGetJson(ACCOUNTS_PATH, { authorization: `Bearer ${a.token}` });
-    r = { status: res.status, json: res.json };
-  } else {
-    const tok = await getWebToken(PARTITION);
-    r = await webGetJson(ACCOUNTS_PATH, { headers: { authorization: `Bearer ${tok.token}` } });
+    const res = await bearerGetJson(pathname, workspace ? bearerHeaders(a) : { authorization: `Bearer ${a.token}` });
+    return { status: res.status, json: res.json };
   }
+  const tok = await getWebToken(PARTITION);
+  return webGetJson(pathname, { headers: workspace ? bearerHeaders(tok) : { authorization: `Bearer ${tok.token}` } });
+}
+
+/** Workspaces the main account can use (Settings → Workspace) */
+async function listWorkspaces() {
+  const r = await mainGetJson(ACCOUNTS_PATH, { workspace: false });
   dumpDebug('accounts-check.json', { fetchedAt: new Date().toISOString(), status: r.status, raw: r.json });
   if (r.status < 200 || r.status >= 300) throw new AppError('err.http', { host: 'chatgpt.com', status: r.status });
   return parseAccountsCheck(r.json);
+}
+
+/**
+ * Expiry dates of the main account's usage-limit resets. Only fetched when the usage response says
+ * there are some, at most once an hour (or when the count changes). Never throws.
+ */
+let resetCreditsCache = { at: 0, count: -1, source: '', data: null };
+async function resetCreditDetails(count) {
+  const now = Date.now();
+  const c = resetCreditsCache;
+  if (c.count === count && c.source === config.source && now - c.at < 3600e3) return c.data;
+  let data = null;
+  try {
+    const r = await mainGetJson(RESET_CREDITS_PATH);
+    dumpDebug('reset-credits.json', { fetchedAt: new Date().toISOString(), status: r.status, raw: r.json });
+    if (r.status >= 200 && r.status < 300) data = usage.parseResetCredits(r.json);
+  } catch (e) { console.error('[reset-credits]', e.key || e.message); }
+  resetCreditsCache = { at: now, count, source: config.source, data };
+  return data;
+}
+
+/** A usage-limit reset expiring within a day is worth using: remind once per expiry time */
+function checkResetExpiry(resets) {
+  const at = resets?.nextExpiry ? new Date(resets.nextExpiry).getTime() : null;
+  if (!at || at <= Date.now() || at - Date.now() > 24 * 3600e3 || !config.notify) return;
+  const id = `reset-expiry|${at}`;
+  if (notified.has(id)) return;
+  notified.add(id);
+  notify({
+    title: t('notify.resetExpiringTitle'),
+    body: t('notify.resetExpiringBody', { time: new Date(at).toLocaleString(lang) }),
+  });
 }
 
 // ---------------------------------------------------------------- normalize
@@ -465,6 +504,10 @@ async function doRefresh() {
       failCount = 0;
       lastState = st;
       lastState.signInExpiresAt = checkPastedExpiry(data.pastedToken);
+      if (lastState.resets) {
+        const d = await resetCreditDetails(lastState.resets.available);
+        if (d) { lastState.resets.nextExpiry = d.nextExpiry; checkResetExpiry(lastState.resets); }
+      }
       history?.add(lastState);
       addEta(lastState);
       maybeNotify(lastState);

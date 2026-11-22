@@ -59,6 +59,75 @@ test('usage-limit resets: available count from the real response, hidden when no
   assert.deepEqual(resetsOf({ rate_limit_reset_credits: { available_count: 2 } }), { available: 2, applicable: null });
 });
 
+test('real response: not blocked, every model available', () => {
+  const st = normalize({ raw: real }, 'web', NOW);
+  assert.equal(st.blocked, null);
+  assert.deepEqual(st.modelsUnavailable, []);
+  assert.equal(st.windows.some(w => w.kind === 'spend'), false); // individual_limit is null
+});
+
+test('blocked reason: reached type, plain flags, spend control', () => {
+  const { blockedOf } = require('../src/usage');
+  assert.equal(blockedOf({ rate_limit_reached_type: { type: 'workspace_member_credits_depleted' } }), 'workspace_member_credits_depleted');
+  assert.equal(blockedOf({ rate_limit_reached_type: { type: 'something_new' } }), 'rate_limit_reached');
+  assert.equal(blockedOf({ rate_limit: { allowed: false, limit_reached: true } }), 'rate_limit_reached');
+  assert.equal(blockedOf({ rate_limit: { allowed: true, limit_reached: false }, spend_control: { reached: true } }), 'spend');
+  assert.equal(blockedOf({ rate_limit: { allowed: true, limit_reached: false }, rate_limit_reached_type: null }), null);
+});
+
+test('monthly credit limit (Business) becomes a row with "X of Y credits used"', () => {
+  const raw = {
+    ...real,
+    spend_control: {
+      reached: false,
+      individual_limit: { limit: '25000', used: '8000', remaining: '17000', used_percent: 32, remaining_percent: 68, reset_after_seconds: 3600, reset_at: S + 3600 },
+    },
+  };
+  const st = normalize({ raw }, 'web', NOW);
+  const sp = st.windows.find(w => w.kind === 'spend');
+  assert.equal(sp.pct, 32);
+  assert.equal(sp.labelKey, 'label.spendLimit');
+  assert.deepEqual(sp.detailVars, { used: 8000, limit: 25000 });
+  assert.equal(sp.resetsAt, new Date((S + 3600) * 1000).toISOString());
+  assert.equal(st.windows[st.windows.length - 1].kind, 'spend'); // listed last
+  assert.equal(sp.primary, false); // never drives the tray or notifications
+});
+
+test('unavailable models and model names', () => {
+  const { prettyModel } = require('../src/usage');
+  const raw = {
+    ...real,
+    model_usage: {
+      'gpt-6-astra': { available: true, available_at: null },
+      'gpt-5.1-codex-max': { available: false, available_at: S + 600 },
+      'o-mini': { available: false, available_at: '2026-11-22T13:00:00Z' },
+    },
+  };
+  const st = normalize({ raw }, 'web', NOW);
+  assert.deepEqual(st.modelsUnavailable, [
+    { slug: 'gpt-5.1-codex-max', name: 'GPT-5.1 Codex Max', availableAt: new Date((S + 600) * 1000).toISOString() },
+    { slug: 'o-mini', name: 'O Mini', availableAt: '2026-11-22T13:00:00.000Z' },
+  ]);
+  assert.equal(prettyModel('gpt-6-astra'), 'GPT-6 Astra');
+});
+
+test('reset credit details: soonest expiry of the available ones', () => {
+  const { parseResetCredits } = require('../src/usage');
+  const r = parseResetCredits({
+    available_count: 2,
+    credits: [
+      { id: 'a', reset_type: 'full', status: 'available', granted_at: '2026-11-01T00:00:00Z', expires_at: '2026-12-27T08:59:00Z' },
+      { id: 'b', reset_type: 'full', status: 'used', granted_at: '2026-10-01T00:00:00Z', expires_at: '2026-11-25T00:00:00Z' },
+      { id: 'c', reset_type: 'full', status: 'available', granted_at: '2026-11-02T00:00:00Z', expires_at: '2026-12-18T09:39:00+00:00' },
+    ],
+  });
+  assert.equal(r.available, 2);
+  assert.equal(r.nextExpiry, '2026-12-18T09:39:00.000Z');
+  assert.equal(r.expiries.length, 2);
+  assert.equal(parseResetCredits(null), null);
+  assert.deepEqual(parseResetCredits({ available_count: 1, credits: null }), { available: 1, nextExpiry: null, expiries: [] });
+});
+
 test('code review limit becomes a secondary row', () => {
   const raw = {
     ...real,

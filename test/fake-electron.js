@@ -49,6 +49,17 @@ function respond(url, headers = {}, part = null) {
   } else if (u.pathname === '/backend-api/wham/usage') {
     if (!h.authorization) { status = 401; body = { detail: 'Unauthorized' }; }
     else { status = Number(process.env.USAGE_STATUS || 200); body = status === 200 ? fixture : { detail: 'nope' }; }
+  } else if (u.pathname === '/backend-api/wham/rate-limit-reset-credits') {
+    // RESET_EXPIRY_HOURS: hours until the soonest available reset expires (default 30 days)
+    const soon = new Date(Date.now() + Number(process.env.RESET_EXPIRY_HOURS || 720) * 3600e3).toISOString();
+    body = {
+      available_count: 3,
+      credits: [
+        { id: 'r1', reset_type: 'full', status: 'available', granted_at: '2026-11-01T00:00:00Z', expires_at: '2099-01-01T00:00:00Z' },
+        { id: 'r2', reset_type: 'full', status: 'available', granted_at: '2026-11-02T00:00:00Z', expires_at: soon },
+        { id: 'r0', reset_type: 'full', status: 'consumed', granted_at: '2026-10-01T00:00:00Z', expires_at: '2026-11-01T00:00:00Z' },
+      ],
+    };
   } else if (u.pathname === '/backend-api/wham/accounts/check') {
     body = { accounts: [{ id: 'acc-1', name: null, plan_type: 'plus', structure: 'personal' }, { id: 'ws-9', name: 'Acme', plan_type: 'team' }], default_account_id: 'acc-1' };
   } else { status = 404; body = {}; }

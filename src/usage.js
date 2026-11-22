@@ -124,7 +124,7 @@ function hasUsage(raw) {
   return Array.isArray(raw.additional_rate_limits) && raw.additional_rate_limits.some(a => any(a?.rate_limit));
 }
 
-const KIND_ORDER = { session: 0, weekly: 1, other: 2, extra: 3 };
+const KIND_ORDER = { session: 0, weekly: 1, other: 2, extra: 3, spend: 4 };
 
 /**
  * Usage-limit resets the user can spend (Codex CLI: /usage). Each one resets the weekly and
@@ -138,6 +138,89 @@ function resetsOf(raw) {
   if (!Number.isFinite(n) || n <= 0) return null;
   const a = Number(r.applicable_available_count);
   return { available: Math.floor(n), applicable: Number.isFinite(a) ? Math.floor(a) : null };
+}
+
+/** Unix seconds / ms / ISO string → ISO string, or null */
+function isoOf(v) {
+  if (v == null || v === '') return null;
+  if (typeof v === 'number' || /^\d+$/.test(String(v))) {
+    const n = Number(v);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return new Date(n < 1e12 ? n * 1000 : n).toISOString();
+  }
+  const t = Date.parse(v);
+  return Number.isFinite(t) ? new Date(t).toISOString() : null;
+}
+
+/** "gpt-6-astra" → "GPT-6 Astra", "gpt-5.1-codex-max" → "GPT-5.1 Codex Max" */
+function prettyModel(slug) {
+  const parts = String(slug || '').split('-').filter(Boolean);
+  if (!parts.length) return '';
+  if (/^gpt$/i.test(parts[0]) && parts[1] && /^[\d.]+[a-z]?$/i.test(parts[1])) {
+    return [`GPT-${parts[1]}`, ...parts.slice(2).map(p => p[0].toUpperCase() + p.slice(1))].join(' ');
+  }
+  return parts.map(p => p[0].toUpperCase() + p.slice(1)).join(' ');
+}
+
+/** Models the server says can't be used right now (model_usage[slug].available === false) */
+function modelsUnavailableOf(raw) {
+  const mu = raw?.model_usage;
+  if (!isObj(mu)) return [];
+  return Object.entries(mu)
+    .filter(([, v]) => isObj(v) && v.available === false)
+    .map(([slug, v]) => ({ slug, name: prettyModel(slug), availableAt: isoOf(v.available_at) }));
+}
+
+/**
+ * Business / Enterprise per-person monthly credit limit (spend_control.individual_limit),
+ * shown by Codex as "Monthly credit limit · X of Y credits used". Returned as a window-like row.
+ */
+function spendLimitOf(raw, now) {
+  const il = raw?.spend_control?.individual_limit;
+  if (!isObj(il)) return null;
+  const used = Number(il.used), limit = Number(il.limit);
+  const pct = Number.isFinite(Number(il.remaining_percent)) ? 100 - Number(il.remaining_percent) : Number(il.used_percent);
+  return {
+    key: 'spend', kind: 'spend', primary: false,
+    labelKey: 'label.spendLimit',
+    pct: pctOf(pct),
+    resetsAt: resetOf(il, now),
+    durationMs: null,
+    detailKey: Number.isFinite(used) && Number.isFinite(limit) ? 'w.spendDetail' : null,
+    detailVars: { used: Number.isFinite(used) ? used : 0, limit: Number.isFinite(limit) ? limit : 0 },
+    limitReached: !!raw.spend_control.reached,
+  };
+}
+
+/**
+ * Why usage is blocked, if it is: the server's rate_limit_reached_type, else the plain
+ * limit_reached / allowed flags, else the spend-control flag. null when nothing is blocked.
+ */
+const BLOCK_TYPES = new Set(['rate_limit_reached', 'workspace_owner_credits_depleted', 'workspace_member_credits_depleted',
+  'workspace_owner_usage_limit_reached', 'workspace_member_usage_limit_reached']);
+function blockedOf(raw) {
+  const t = raw?.rate_limit_reached_type?.type;
+  if (t) return BLOCK_TYPES.has(t) ? t : 'rate_limit_reached';
+  const rl = raw?.rate_limit;
+  if (isObj(rl) && (rl.limit_reached === true || rl.allowed === false)) return 'rate_limit_reached';
+  if (raw?.spend_control?.reached === true) return 'spend';
+  return null;
+}
+
+/**
+ * GET /backend-api/wham/rate-limit-reset-credits → { available, nextExpiry, expiries }.
+ * credits: [{ id, reset_type, status: 'available'|…, granted_at, expires_at (RFC 3339) }].
+ */
+function parseResetCredits(raw) {
+  if (!isObj(raw)) return null;
+  const list = Array.isArray(raw.credits) ? raw.credits : [];
+  const expiries = list
+    .filter(c => isObj(c) && (c.status == null || String(c.status).toLowerCase() === 'available'))
+    .map(c => isoOf(c.expires_at))
+    .filter(Boolean)
+    .sort();
+  const n = Number(raw.available_count);
+  return { available: Number.isFinite(n) ? n : expiries.length, nextExpiry: expiries[0] || null, expiries };
 }
 
 function creditsOf(raw) {
@@ -163,6 +246,8 @@ function normalize({ raw, plan, email, accountName } = {}, source = 'web', now =
       windows.push(...windowsOf(a.rate_limit, now, { primary: false, prefix: `extra:${id}`, labelVars: { name: pretty(id) } }));
     });
   }
+  const spend = spendLimitOf(raw, now);
+  if (spend) windows.push(spend);
   windows.sort((a, b) => (KIND_ORDER[a.kind] ?? 9) - (KIND_ORDER[b.kind] ?? 9));
 
   const reached = raw?.rate_limit_reached_type;
@@ -173,6 +258,8 @@ function normalize({ raw, plan, email, accountName } = {}, source = 'web', now =
     credits: creditsOf(raw),
     resets: resetsOf(raw),
     reachedType: isObj(reached) && reached.type ? String(reached.type) : null,
+    blocked: blockedOf(raw),
+    modelsUnavailable: modelsUnavailableOf(raw),
     plan: planName(raw?.plan_type) || plan || '',
     email: email || '',
     accountName: accountName || '',
@@ -343,5 +430,6 @@ function redact(v, key = '') {
 
 module.exports = {
   normalize, addEta, hasUsage, classify, planName, pctOf,
-  jwtPayload, tokenExpiry, expiryReminder, resetsOf, parseCodexAuth, parsePastedSession, parseAccountsCheck, redact,
+  jwtPayload, tokenExpiry, expiryReminder, resetsOf, parseResetCredits, blockedOf, spendLimitOf,
+  modelsUnavailableOf, prettyModel, isoOf, parseCodexAuth, parsePastedSession, parseAccountsCheck, redact,
 };

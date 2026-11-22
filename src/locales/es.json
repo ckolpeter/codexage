@@ -172,5 +172,19 @@
   "w.expiring": "⚠ La sesión caduca en {left}",
   "w.repaste": "Volver a pegar",
   "notify.expiringTitle": "La sesión de Codexage caduca pronto",
-  "notify.expiringBody": "Caduca el {time}. Haz clic para pegar una sesión nueva desde chatgpt.com/api/auth/session"
+  "notify.expiringBody": "Caduca el {time}. Haz clic para pegar una sesión nueva desde chatgpt.com/api/auth/session",
+  "label.spendLimit": "Límite mensual de créditos",
+  "w.spendDetail": "{used} de {limit} créditos usados",
+  "w.blocked.rate_limit_reached": "Límite de uso alcanzado",
+  "w.blocked.workspace_owner_credits_depleted": "Tu espacio de trabajo se quedó sin créditos. Añade créditos para seguir usando Codex",
+  "w.blocked.workspace_member_credits_depleted": "Tu espacio de trabajo se quedó sin créditos. Pide al propietario que añada más",
+  "w.blocked.workspace_owner_usage_limit_reached": "Has alcanzado el límite de uso de este espacio de trabajo. Puedes subirlo en sus ajustes",
+  "w.blocked.workspace_member_usage_limit_reached": "Has alcanzado el límite de uso fijado por tu espacio de trabajo. Pide al propietario que lo aumente",
+  "w.blocked.spend": "Límite mensual de créditos alcanzado",
+  "w.useReset": "Tienes {n} reinicios de límite: ejecuta /usage en Codex CLI para usar uno",
+  "w.modelUnavailable": "{model} no disponible hasta {time}",
+  "w.modelUnavailableNoTime": "{model} no está disponible ahora",
+  "w.resetsNext": "el próximo caduca {time}",
+  "notify.resetExpiringTitle": "Un reinicio de límite caduca pronto",
+  "notify.resetExpiringBody": "Caduca el {time}. Úsalo antes en Codex CLI con /usage"
 }

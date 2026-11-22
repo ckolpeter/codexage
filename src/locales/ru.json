@@ -172,5 +172,19 @@
   "w.expiring": "⚠ Сессия истечёт через {left}",
   "w.repaste": "Вставить снова",
   "notify.expiringTitle": "Сессия Codexage скоро истечёт",
-  "notify.expiringBody": "Истекает {time}. Нажмите, чтобы вставить новую сессию из chatgpt.com/api/auth/session"
+  "notify.expiringBody": "Истекает {time}. Нажмите, чтобы вставить новую сессию из chatgpt.com/api/auth/session",
+  "label.spendLimit": "Месячный лимит кредитов",
+  "w.spendDetail": "Использовано {used} из {limit} кредитов",
+  "w.blocked.rate_limit_reached": "Лимит использования исчерпан",
+  "w.blocked.workspace_owner_credits_depleted": "В рабочем пространстве закончились кредиты. Пополните их, чтобы продолжить пользоваться Codex",
+  "w.blocked.workspace_member_credits_depleted": "В рабочем пространстве закончились кредиты. Попросите владельца пополнить их",
+  "w.blocked.workspace_owner_usage_limit_reached": "Достигнут лимит использования, заданный для этого рабочего пространства. Его можно повысить в настройках",
+  "w.blocked.workspace_member_usage_limit_reached": "Достигнут лимит использования, заданный рабочим пространством. Попросите владельца повысить его",
+  "w.blocked.spend": "Месячный лимит кредитов исчерпан",
+  "w.useReset": "У вас {n} сбросов лимита: выполните /usage в Codex CLI, чтобы использовать один",
+  "w.modelUnavailable": "{model} недоступна до {time}",
+  "w.modelUnavailableNoTime": "{model} сейчас недоступна",
+  "w.resetsNext": "ближайший истекает {time}",
+  "notify.resetExpiringTitle": "Скоро истечёт сброс лимита",
+  "notify.resetExpiringBody": "Истекает {time}. Используйте его до этого в Codex CLI командой /usage"
 }

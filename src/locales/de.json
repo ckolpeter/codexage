@@ -172,5 +172,19 @@
   "w.expiring": "⚠ Anmeldung läuft in {left} ab",
   "w.repaste": "Erneut einfügen",
   "notify.expiringTitle": "Codexage-Anmeldung läuft bald ab",
-  "notify.expiringBody": "Läuft am {time} ab. Klicken, um eine neue Sitzung aus chatgpt.com/api/auth/session einzufügen"
+  "notify.expiringBody": "Läuft am {time} ab. Klicken, um eine neue Sitzung aus chatgpt.com/api/auth/session einzufügen",
+  "label.spendLimit": "Monatliches Guthabenlimit",
+  "w.spendDetail": "{used} von {limit} Credits genutzt",
+  "w.blocked.rate_limit_reached": "Nutzungslimit erreicht",
+  "w.blocked.workspace_owner_credits_depleted": "Dein Arbeitsbereich hat kein Guthaben mehr. Lade Guthaben auf, um Codex weiter zu nutzen",
+  "w.blocked.workspace_member_credits_depleted": "Dein Arbeitsbereich hat kein Guthaben mehr. Bitte den Inhaber, mehr hinzuzufügen",
+  "w.blocked.workspace_owner_usage_limit_reached": "Du hast das für diesen Arbeitsbereich festgelegte Nutzungslimit erreicht. Erhöhe es in den Einstellungen des Arbeitsbereichs",
+  "w.blocked.workspace_member_usage_limit_reached": "Du hast das von deinem Arbeitsbereich festgelegte Nutzungslimit erreicht. Bitte den Inhaber um eine Erhöhung",
+  "w.blocked.spend": "Monatliches Guthabenlimit erreicht",
+  "w.useReset": "Du hast {n} Limit-Zurücksetzungen: führe /usage in Codex CLI aus, um eine einzulösen",
+  "w.modelUnavailable": "{model} nicht verfügbar bis {time}",
+  "w.modelUnavailableNoTime": "{model} ist gerade nicht verfügbar",
+  "w.resetsNext": "nächste läuft ab {time}",
+  "notify.resetExpiringTitle": "Eine Limit-Zurücksetzung läuft bald ab",
+  "notify.resetExpiringBody": "Sie läuft am {time} ab. Löse sie vorher in Codex CLI mit /usage ein"
 }
