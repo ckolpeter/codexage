@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} ist gerade nicht verfügbar",
   "w.resetsNext": "nächste läuft ab {time}",
   "notify.resetExpiringTitle": "Eine Limit-Zurücksetzung läuft bald ab",
-  "notify.resetExpiringBody": "Sie läuft am {time} ab. Löse sie vorher in Codex CLI mit /usage ein"
+  "notify.resetExpiringBody": "Sie läuft am {time} ab. Löse sie vorher in Codex CLI mit /usage ein",
+  "s.accountLabel": "Anzeigename",
+  "s.accountLabelHint": "Wird im Widget über den Balken angezeigt. Leer lassen, um die E-Mail anzuzeigen.",
+  "s.accountLabelEmpty": "Die E-Mail erscheint nach der Anmeldung",
+  "s.maskEmail": "E-Mails im Widget maskieren, z. B. s***@gmail.com (bei Bildschirmfreigabe)"
 }

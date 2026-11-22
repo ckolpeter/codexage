@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model}은(는) 지금 사용할 수 없습니다",
   "w.resetsNext": "다음 만료 {time}",
   "notify.resetExpiringTitle": "한도 초기화가 곧 만료됩니다",
-  "notify.resetExpiringBody": "{time}에 만료됩니다. 그 전에 Codex CLI에서 /usage를 입력해 사용하세요"
+  "notify.resetExpiringBody": "{time}에 만료됩니다. 그 전에 Codex CLI에서 /usage를 입력해 사용하세요",
+  "s.accountLabel": "표시 이름",
+  "s.accountLabelHint": "위젯의 사용량 막대 위에 표시됩니다. 비워 두면 이메일을 표시합니다.",
+  "s.accountLabelEmpty": "로그인하면 이메일이 표시됩니다",
+  "s.maskEmail": "위젯에서 이메일 가리기 (예: s***@gmail.com, 화면 공유 시)"
 }

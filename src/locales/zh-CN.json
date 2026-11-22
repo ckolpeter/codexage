@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} 目前无法使用",
   "w.resetsNext": "最近一次 {time} 到期",
   "notify.resetExpiringTitle": "有一次额度重置即将到期",
-  "notify.resetExpiringBody": "将于 {time} 到期，请在那之前于 Codex CLI 输入 /usage 使用"
+  "notify.resetExpiringBody": "将于 {time} 到期，请在那之前于 Codex CLI 输入 /usage 使用",
+  "s.accountLabel": "显示名称",
+  "s.accountLabelHint": "显示在小组件的用量条上方。留空则显示 email。",
+  "s.accountLabelEmpty": "登录后会显示 email",
+  "s.maskEmail": "在小组件上遮蔽 email，例如 s***@gmail.com（屏幕共享时使用）"
 }

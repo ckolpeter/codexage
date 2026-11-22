@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} сейчас недоступна",
   "w.resetsNext": "ближайший истекает {time}",
   "notify.resetExpiringTitle": "Скоро истечёт сброс лимита",
-  "notify.resetExpiringBody": "Истекает {time}. Используйте его до этого в Codex CLI командой /usage"
+  "notify.resetExpiringBody": "Истекает {time}. Используйте его до этого в Codex CLI командой /usage",
+  "s.accountLabel": "Отображаемое имя",
+  "s.accountLabelHint": "Показывается в виджете над полосами. Оставьте пустым, чтобы показывать почту.",
+  "s.accountLabelEmpty": "Почта появится после входа",
+  "s.maskEmail": "Скрывать почту в виджете, например s***@gmail.com (при показе экрана)"
 }

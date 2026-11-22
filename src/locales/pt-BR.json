@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} está indisponível no momento",
   "w.resetsNext": "a próxima expira em {time}",
   "notify.resetExpiringTitle": "Uma renovação de limite expira em breve",
-  "notify.resetExpiringBody": "Expira em {time}. Use antes disso no Codex CLI com /usage"
+  "notify.resetExpiringBody": "Expira em {time}. Use antes disso no Codex CLI com /usage",
+  "s.accountLabel": "Nome exibido",
+  "s.accountLabelHint": "Aparece no widget acima das barras. Deixe vazio para mostrar o e-mail.",
+  "s.accountLabelEmpty": "O e-mail aparece depois de entrar",
+  "s.maskEmail": "Ocultar e-mails no widget, ex.: s***@gmail.com (ao compartilhar a tela)"
 }

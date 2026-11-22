@@ -30,7 +30,8 @@
   .status { font-size: 12px; margin-top: 6px; }
   .ok { color: #2f8a4f; } .bad { color: #c0392b; }
   .acctRow { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
-  .acctRow .nm { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .acctRow .nm { flex: 1; min-width: 0; padding: 3px 6px; font: inherit; }
+  .acctRow .st { font-size: 11px; color: #7a808c; white-space: nowrap; }
   .acctRow button { padding: 3px 8px; font-size: 12px; }
   .foot { margin-top: 18px; color: #9aa0ab; font-size: 11px; }
 </style>
@@ -60,6 +61,8 @@
     <select id="workspace" style="width:250px"><option value="" data-i18n="s.workspaceAuto"></option></select>
   </div>
   <div class="hint" id="wsHint"></div>
+  <div class="field"><span data-i18n="s.accountLabel"></span><input type="text" id="mainLabel" maxlength="40" style="width:250px;padding:3px 6px"></div>
+  <div class="hint" data-i18n="s.accountLabelHint"></div>
 
   <h2 data-i18n="a.title"></h2>
   <div class="hint" data-i18n="a.hint"></div>
@@ -86,6 +89,7 @@
   <label class="opt"><input type="checkbox" id="snapEdges"> <span data-i18n="s.snapEdges"></span></label>
   <label class="opt"><input type="checkbox" id="alwaysOnTop"> <span data-i18n="s.alwaysOnTop"></span></label>
   <label class="opt"><input type="checkbox" id="compact"> <span data-i18n="s.compact"></span></label>
+  <label class="opt"><input type="checkbox" id="maskEmail"> <span data-i18n="s.maskEmail"></span></label>
   <div class="field"><span data-i18n="s.trayMetric"></span>
     <select id="trayMetric">
       <option value="five_hour" data-i18n="s.trayFive"></option>

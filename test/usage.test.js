@@ -332,6 +332,19 @@ test('parseAccountsCheck: list and map shapes', () => {
   assert.deepEqual(parseAccountsCheck(null), []);
 });
 
+test('account names: custom name, email, masked email', () => {
+  const { maskEmail, accountName } = require('../src/usage');
+  assert.equal(maskEmail('someone@example.com'), 's***@example.com');
+  assert.equal(maskEmail('a@b.co'), 'a***@b.co');
+  assert.equal(maskEmail('nobody'), 'n***');
+  assert.equal(maskEmail(''), '');
+  assert.equal(accountName('me@example.com', '  公司  '), '公司');
+  assert.equal(accountName('me@example.com', ''), 'me@example.com');
+  assert.equal(accountName('me@example.com', '', true), 'm***@example.com');
+  assert.equal(accountName('me@example.com', 'Work', true), 'Work'); // a custom name is never masked
+  assert.equal(accountName('', ''), '');
+});
+
 test('redact removes secrets before writing debug files', () => {
   const r = redact({
     accessToken: 'abc', user: { email: 'someone@example.com', id: 'user-1234567890' },

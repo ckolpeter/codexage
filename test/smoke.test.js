@@ -182,6 +182,29 @@ test('server error → http error with retry', () => {
   assert.equal(r.state.reportable, false);
 });
 
+test('account name: email by default, custom name, masked email, stale name ignored', () => {
+  assert.equal(run().state.account, 'me@example.com'); // shown even with a single account
+  assert.equal(run({ PRECONFIG: JSON.stringify({ mainLabel: '個人', mainLabelEmail: 'me@example.com' }) }).state.account, '個人');
+  assert.equal(run({ PRECONFIG: JSON.stringify({ maskEmail: true }) }).state.account, 'm***@example.com');
+  // a name given to another account's email isn't inherited by a different sign-in
+  assert.equal(run({ PRECONFIG: JSON.stringify({ mainLabel: '公司', mainLabelEmail: 'boss@corp.com' }) }).state.account, 'me@example.com');
+});
+
+test('extra account names: custom name, notifications prefixed with names', () => {
+  const r = run({
+    FIXTURE: FIX('usage-weekly-only.json'),
+    PRECONFIG: JSON.stringify({ mainLabel: '個人', mainLabelEmail: 'me@example.com', accounts: [{ partition: 'persist:chatgpt-acct-x', email: 'work@example.com', label: '公司' }] }),
+  });
+  assert.deepEqual(r.state.others.map(o => [o.name, o.email]), [['公司', 'work@example.com']]);
+  assert.equal(r.state.account, '個人');
+  // both accounts are at 85% weekly → one notification each, each says which account
+  const titles = r.notes.map(n => n.title).sort();
+  assert.equal(titles.length, 2);
+  assert.match(titles[0], /^個人 · /);
+  assert.match(titles[1], /^公司 · /);
+  assert.match(r.tooltip, /^個人\n/);
+});
+
 test('extra accounts are fetched alongside the main one', () => {
   const r = run({ PRECONFIG: JSON.stringify({ accounts: [{ partition: 'persist:chatgpt-acct-x', email: '' }] }) });
   assert.deepEqual(r.state.others.map(o => [o.email, o.status]), [['work@example.com', 'ok']]);

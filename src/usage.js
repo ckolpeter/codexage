@@ -414,6 +414,21 @@ function parseAccountsCheck(raw) {
     }));
 }
 
+/** "someone@example.com" → "s***@example.com" (for screen sharing) */
+function maskEmail(s) {
+  const str = String(s || '');
+  if (!str) return '';
+  const at = str.indexOf('@');
+  return at > 0 ? `${str[0]}***${str.slice(at)}` : `${str[0]}***`;
+}
+
+/** What to call an account on the widget: its custom name, else its email (optionally masked) */
+function accountName(email, label, mask = false) {
+  const l = String(label || '').trim();
+  if (l) return l;
+  return mask ? maskEmail(email) : String(email || '');
+}
+
 // ---------------------------------------------------------------- debug redaction
 const SECRET_KEY = /token|secret|password|cookie|authorization|session_?key|api_?key|jwt/i;
 /** Deep copy with secrets removed and emails / ids masked, for files in ./debug */
@@ -431,5 +446,5 @@ function redact(v, key = '') {
 module.exports = {
   normalize, addEta, hasUsage, classify, planName, pctOf,
   jwtPayload, tokenExpiry, expiryReminder, resetsOf, parseResetCredits, blockedOf, spendLimitOf,
-  modelsUnavailableOf, prettyModel, isoOf, parseCodexAuth, parsePastedSession, parseAccountsCheck, redact,
+  modelsUnavailableOf, prettyModel, isoOf, maskEmail, accountName, parseCodexAuth, parsePastedSession, parseAccountsCheck, redact,
 };

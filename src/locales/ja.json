@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} は現在使用できません",
   "w.resetsNext": "次の期限 {time}",
   "notify.resetExpiringTitle": "上限リセットの期限がまもなく切れます",
-  "notify.resetExpiringBody": "{time} に期限切れになります。それまでに Codex CLI で /usage と入力して使ってください"
+  "notify.resetExpiringBody": "{time} に期限切れになります。それまでに Codex CLI で /usage と入力して使ってください",
+  "s.accountLabel": "表示名",
+  "s.accountLabelHint": "ウィジェットのバーの上に表示されます。空欄ならメールアドレスを表示します。",
+  "s.accountLabelEmpty": "サインイン後にメールアドレスが表示されます",
+  "s.maskEmail": "ウィジェットのメールアドレスを伏せる（例 s***@gmail.com、画面共有時に）"
 }

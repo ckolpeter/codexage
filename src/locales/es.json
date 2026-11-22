@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} no está disponible ahora",
   "w.resetsNext": "el próximo caduca {time}",
   "notify.resetExpiringTitle": "Un reinicio de límite caduca pronto",
-  "notify.resetExpiringBody": "Caduca el {time}. Úsalo antes en Codex CLI con /usage"
+  "notify.resetExpiringBody": "Caduca el {time}. Úsalo antes en Codex CLI con /usage",
+  "s.accountLabel": "Nombre visible",
+  "s.accountLabelHint": "Se muestra en el widget encima de las barras. Déjalo vacío para mostrar el correo.",
+  "s.accountLabelEmpty": "El correo aparece al iniciar sesión",
+  "s.maskEmail": "Ocultar correos en el widget, p. ej. s***@gmail.com (al compartir pantalla)"
 }

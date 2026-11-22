@@ -186,5 +186,9 @@
   "w.modelUnavailableNoTime": "{model} is unavailable right now",
   "w.resetsNext": "next expires {time}",
   "notify.resetExpiringTitle": "A usage limit reset expires soon",
-  "notify.resetExpiringBody": "It expires {time}. Use it in Codex CLI with /usage before then"
+  "notify.resetExpiringBody": "It expires {time}. Use it in Codex CLI with /usage before then",
+  "s.accountLabel": "Display name",
+  "s.accountLabelHint": "Shown on the widget above the bars. Leave empty to show the email.",
+  "s.accountLabelEmpty": "Email appears after sign-in",
+  "s.maskEmail": "Mask emails on the widget, e.g. s***@gmail.com (for screen sharing)"
 }

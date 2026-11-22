@@ -73,8 +73,11 @@ const DEFAULTS = {
   snapEdges: true,        // snap to screen edges when dragged close
   bounds: null,
   workspaceId: null,      // ChatGPT workspace for the main account (null = the one in use)
-  accounts: [],           // extra ChatGPT accounts: [{ partition, email }]
-  mainEmail: '',          // label for the main account when several are shown
+  accounts: [],           // extra ChatGPT accounts: [{ partition, email, label }]
+  mainEmail: '',          // the main account's email (learned from the sign-in)
+  mainLabel: '',          // custom name for the main account ('' = show the email)
+  mainLabelEmail: '',     // the email mainLabel was given for (a different sign-in doesn't inherit it)
+  maskEmail: false,       // show emails as s***@example.com (screen sharing)
 };
 let config = { ...DEFAULTS };
 function loadConfig() {
@@ -485,7 +488,7 @@ async function doRefresh() {
   if (!net.isOnline()) {
     failCount++;
     const prev = lastState.status === 'ok' ? lastState : lastState.prev;
-    lastState = { status: 'error', msgKey: 'err.offline', prev, others: lastState.others, email: lastState.email };
+    lastState = { status: 'error', msgKey: 'err.offline', prev, others: lastState.others, email: lastState.email, account: mainName() };
     lastState.retryAt = scheduleRetry();
     push(lastState); updateTray();
     return;
@@ -498,19 +501,21 @@ async function doRefresh() {
     const prevOk = lastState.status === 'ok' ? lastState : lastState.prev;
     const st = normalize(data);
     if (data.email && data.email !== config.mainEmail) { config.mainEmail = data.email; saveConfig(); }
+    // With several accounts, notifications say which one they're about
+    const who = (config.accounts || []).length ? mainName() : '';
     if (!st.windows.length) {
       lastState = { status: 'error', msgKey: hasUsage(data.raw) ? 'err.noData' : 'err.noLimits', reportable: hasUsage(data.raw), plan: st.plan };
     } else {
       failCount = 0;
       lastState = st;
-      lastState.signInExpiresAt = checkPastedExpiry(data.pastedToken);
+      lastState.signInExpiresAt = checkPastedExpiry(data.pastedToken, PARTITION, who);
       if (lastState.resets) {
         const d = await resetCreditDetails(lastState.resets.available);
         if (d) { lastState.resets.nextExpiry = d.nextExpiry; checkResetExpiry(lastState.resets); }
       }
       history?.add(lastState);
       addEta(lastState);
-      maybeNotify(lastState);
+      maybeNotify(lastState, who);
       checkResets(prevOk, lastState);
       scheduleResetCheck(lastState);
     }
@@ -534,6 +539,7 @@ async function doRefresh() {
   }
   lastState.others = await othersP;
   lastState.email = config.mainEmail || '';
+  lastState.account = mainName();
   push(lastState);
   updateTray();
 }
@@ -553,6 +559,21 @@ function push(state) {
   if (widget && !widget.isDestroyed()) widget.webContents.send('usage', state, viewOpts());
 }
 function stateMessage(s) { return s.msgKey ? t(s.msgKey, s.msgVars) : (s.message || ''); }
+
+/** Names shown on the widget: custom name, else the email (masked if asked) */
+function mainName() {
+  const labelFits = !config.mainLabelEmail || !config.mainEmail || config.mainLabelEmail === config.mainEmail;
+  return usage.accountName(config.mainEmail, labelFits ? config.mainLabel : '', config.maskEmail);
+}
+function acctName(acct) { return usage.accountName(acct.email, acct.label, config.maskEmail); }
+
+/** Names changed (custom name or masking): update the widget without fetching again */
+function relabel() {
+  lastState.account = mainName();
+  for (const o of lastState.others || []) { const a = accountOf(o.partition); if (a) o.name = acctName(a); }
+  if (lastState.prev) lastState.prev.account = lastState.account;
+  push(lastState); updateTray();
+}
 
 // ---------------------------------------------------------------- notifications
 /** "HH:MM" → minutes since midnight, or null */
@@ -903,17 +924,17 @@ async function removeAccount(part) {
 /** Fetch every extra account (in parallel). Failures become per-account status, never throw. */
 async function fetchOthers() {
   return Promise.all((config.accounts || []).map(async (acct) => {
-    const base = { partition: acct.partition, email: acct.email || '' };
+    const base = { partition: acct.partition, email: acct.email || '', name: acctName(acct) };
     try {
       const data = await fetchWebUsage(acct.partition);
-      if (data.email && data.email !== acct.email) { acct.email = data.email; base.email = data.email; saveConfig(); }
+      if (data.email && data.email !== acct.email) { acct.email = data.email; base.email = data.email; base.name = acctName(acct); saveConfig(); }
       const st = normalize(data, 'web');
       addEta(st);
-      maybeNotify(st, base.email);
+      maybeNotify(st, base.name || base.email);
       return {
         ...base, status: st.windows.length ? 'ok' : 'error', msgKey: st.windows.length ? undefined : 'err.noLimits',
         plan: st.plan, windows: st.windows.filter(w => w.primary),
-        signInExpiresAt: checkPastedExpiry(data.pastedToken, acct.partition, base.email),
+        signInExpiresAt: checkPastedExpiry(data.pastedToken, acct.partition, base.name || base.email),
       };
     } catch (e) {
       return { ...base, status: e instanceof AuthError ? 'auth' : 'error', msgKey: e.key, msgVars: e.vars, message: e.key ? undefined : e.message };
@@ -1060,7 +1081,8 @@ function updateTray() {
     ? t('tray.tooltip', { five: five ? Math.round(five.pct) + '%' : '-', week: week ? Math.round(week.pct) + '%' : '-' })
       + (five?.eta?.beforeReset ? '\n' + t('tray.eta', { time: new Date(five.eta.at).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' }) }) : '')
     : t('tray.tooltipMsg', { msg: stateMessage(lastState) || t('tray.loading') });
-  tray.setToolTip(tip);
+  tray.setToolTip(lastState.account ? `${lastState.account}
+${tip}` : tip);
   if (IS_MAC) { const m = trayMetricWindow(); tray.setTitle(m ? ` ${Math.round(m.pct)}%` : ''); }
   tray.setContextMenu(buildMenu());
 }
@@ -1136,7 +1158,7 @@ ipcMain.handle('settings:get', async () => {
 });
 ipcMain.handle('settings:set', async (_e, patch) => {
   patch = { ...patch };
-  for (const k of ['accounts', 'bounds', 'mainEmail']) delete patch[k]; // managed by the app
+  for (const k of ['accounts', 'bounds', 'mainEmail', 'mainLabelEmail']) delete patch[k]; // managed by the app
   if ('language' in patch) { setLanguage(patch.language); delete patch.language; }
   const prevSource = config.source;
   Object.assign(config, patch);
@@ -1154,6 +1176,11 @@ ipcMain.handle('settings:set', async (_e, patch) => {
   if ('clickThrough' in patch) applyClickThrough();
   if ('hideOnFullscreen' in patch) applyFullscreenMode();
   if ('hotkey' in patch) hotkeyOk = registerHotkeys();
+  if ('maskEmail' in patch || 'mainLabel' in patch) {
+    config.mainLabel = String(config.mainLabel || '').trim().slice(0, 40);
+    if ('mainLabel' in patch) config.mainLabelEmail = config.mainLabel ? config.mainEmail : '';
+    relabel();
+  }
   saveConfig(); schedule(); updateTray();
   if (prevSource !== config.source || 'workspaceId' in patch) refresh(); else push(lastState);
   return config;
@@ -1164,9 +1191,16 @@ ipcMain.handle('settings:list-workspaces', async () => {
 ipcMain.on('settings:login', () => openLogin());
 ipcMain.on('settings:logout', () => logout());
 ipcMain.handle('accounts:list', async () => Promise.all((config.accounts || []).map(async a => ({
-  partition: a.partition, email: a.email || '', signedIn: await isSignedIn(a.partition),
+  partition: a.partition, email: a.email || '', label: a.label || '', signedIn: await isSignedIn(a.partition),
 }))));
 ipcMain.on('accounts:add', () => addAccount());
+ipcMain.handle('accounts:set-label', (_e, part, label) => {
+  const acct = accountOf(part);
+  if (!acct) return false;
+  acct.label = String(label || '').trim().slice(0, 40);
+  saveConfig(); relabel();
+  return true;
+});
 ipcMain.on('accounts:login', (_e, part) => { if (accountOf(part)) openLogin(part); });
 ipcMain.on('accounts:paste', (_e, part) => { if (accountOf(part)) openPaste(part); });
 ipcMain.handle('accounts:add-paste', () => { const part = `${ACCT_PREFIX}${Date.now().toString(36)}`; config.accounts = [...(config.accounts || []), { partition: part, email: '' }]; saveConfig(); openPaste(part); return part; });

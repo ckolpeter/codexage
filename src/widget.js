@@ -83,7 +83,7 @@ function creditsHtml(c) {
 /** Extra accounts: compact block per account with its 5-hour and weekly bars */
 function othersHtml(others) {
   return others.map((o, i) => {
-    const name = o.email || t('a.unnamed', { n: i + 2 });
+    const name = o.name || o.email || t('a.unnamed', { n: i + 2 });
     let body;
     if (o.status === 'ok') {
       body = o.windows.map(w => {
@@ -168,7 +168,8 @@ function render() {
     let html = ws.map(rowHtml).join('');
     // Blocked: say why first (also in compact mode)
     if (data.blocked) html = blockedHtml(data) + html;
-    if (state.others && state.others.length && state.email) html = `<div class="aname">${esc(state.email)}</div>` + html;
+    // Which account this is: custom name or email, always shown when known
+    if (state.account) html = `<div class="aname main" title="${esc(state.account)}">${esc(state.account)}</div>` + html;
     if (!opts.compact && data.modelsUnavailable?.length) html += modelsHtml(data.modelsUnavailable);
     if (!opts.compact && data.credits) html += creditsHtml(data.credits);
     if (!opts.compact && data.resets) html += resetsHtml(data.resets);

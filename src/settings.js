@@ -4,7 +4,7 @@ const S = window.api.settings;
 let DICT = {};
 const t = (k, v = {}) => (DICT[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? `{${x}}`);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const CHECKS = ['alwaysOnTop', 'compact', 'notify', 'notifyReset', 'openAtLogin', 'autoUpdate', 'clickThrough', 'quietEnabled', 'hideOnFullscreen', 'snapEdges'];
+const CHECKS = ['alwaysOnTop', 'compact', 'notify', 'notifyReset', 'openAtLogin', 'autoUpdate', 'clickThrough', 'quietEnabled', 'hideOnFullscreen', 'snapEdges', 'maskEmail'];
 
 async function applyI18n() {
   const { lang, dict } = await window.api.i18n();
@@ -39,6 +39,8 @@ async function load() {
   $('hotkeyHint').innerHTML = c.hotkey && !info.hotkeyOk
     ? `<span class="bad">${esc(t('s.hotkeyFail'))}</span>` : esc(t('s.hotkeyHint'));
   for (const k of CHECKS) $(k).checked = !!c[k];
+  $('mainLabel').value = c.mainLabelEmail && c.mainEmail && c.mainLabelEmail !== c.mainEmail ? '' : (c.mainLabel || '');
+  $('mainLabel').placeholder = c.mainEmail || t('s.accountLabelEmpty');
   $('fsRow').style.display = info.fullscreenSupported ? '' : 'none';
 
   const web = c.source !== 'cli';
@@ -82,11 +84,15 @@ async function loadAccounts() {
   box.textContent = '';
   list.forEach((a, i) => {
     const row = document.createElement('div'); row.className = 'acctRow';
-    const nm = document.createElement('span'); nm.className = 'nm';
-    nm.textContent = (a.email || t('a.unnamed', { n: i + 2 })) + ' · ' + t(a.signedIn ? 'a.signedIn' : 'a.signedOut');
+    // Editable name; the email (or "Account N") shows as the placeholder
+    const nm = document.createElement('input'); nm.className = 'nm'; nm.type = 'text'; nm.maxLength = 40;
+    nm.value = a.label || ''; nm.placeholder = a.email || t('a.unnamed', { n: i + 2 }); nm.title = t('s.accountLabelHint');
+    nm.addEventListener('change', () => window.api.accounts.setLabel(a.partition, nm.value));
+    const st = document.createElement('span'); st.className = 'st';
+    st.textContent = t(a.signedIn ? 'a.signedIn' : 'a.signedOut');
     const btn = (key, fn) => { const b = document.createElement('button'); b.textContent = t(key); b.addEventListener('click', fn); return b; };
     row.append(
-      nm,
+      nm, st,
       btn('s.login', () => window.api.accounts.login(a.partition)),
       btn('a.paste', () => window.api.accounts.paste(a.partition)),
       btn('a.remove', async () => { await window.api.accounts.remove(a.partition); loadAccounts(); }),
@@ -115,6 +121,7 @@ $('scale').addEventListener('input', e => { $('scaleVal').textContent = Math.rou
 $('scale').addEventListener('change', e => set({ scale: Number(e.target.value) }));
 $('hotkey').addEventListener('change', async e => { await set({ hotkey: e.target.value.trim() }); load(); });
 $('trayMetric').addEventListener('change', e => set({ trayMetric: e.target.value }));
+$('mainLabel').addEventListener('change', e => set({ mainLabel: e.target.value }));
 $('workspace').addEventListener('change', e => set({ workspaceId: e.target.value || null }));
 $('acctAdd').addEventListener('click', () => window.api.accounts.add());
 $('acctAddPaste').addEventListener('click', async () => { await window.api.accounts.addByPaste(); loadAccounts(); });

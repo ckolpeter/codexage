@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld('api', {
     addByPaste: () => ipcRenderer.invoke('accounts:add-paste'),
     login: (part) => ipcRenderer.send('accounts:login', part),
     paste: (part) => ipcRenderer.send('accounts:paste', part),
+    setLabel: (part, label) => ipcRenderer.invoke('accounts:set-label', part, label),
     remove: (part) => ipcRenderer.invoke('accounts:remove', part),
   },
   // 設定視窗
