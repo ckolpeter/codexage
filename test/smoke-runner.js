@@ -54,6 +54,19 @@ setTimeout(async () => {
     if (process.env.REFRESH_AGAIN) await ipc['refresh']?.(); // a second refresh must not repeat the reminder
     await new Promise(r => setTimeout(r, 300));
   }
+  // CLIP: what the paste window finds in the clipboard ('valid' | 'expired' | other text), then applies it
+  let clip;
+  if (process.env.CLIP) {
+    const s = Math.floor(Date.now() / 1000);
+    const claims = { valid: { iat: s - 3600, exp: s + 10 * 86400 }, expired: { iat: s - 11 * 86400, exp: s - 60 } }[process.env.CLIP];
+    global.__clip = claims
+      ? JSON.stringify({ user: { email: 'clip@example.com' }, account: { id: 'acc-c', planType: 'pro' }, accessToken: global.__jwt(claims) })
+      : process.env.CLIP;
+    const seen = await ipc['paste:clipboard']();
+    const apply = await ipc['paste:apply-clipboard']({});
+    await new Promise(r => setTimeout(r, 300));
+    clip = { seen, apply, left: global.__clip };
+  }
   const state = global.__sent.filter(s => s[0] === 'usage').pop()?.[1];
   const settings = await ipc['settings:get']();
   await ipc['settings:set']({}, { notifyThresholds: [95, 50, 200, 'x'] });
@@ -65,7 +78,7 @@ setTimeout(async () => {
   process.stdout.write('\n@@RESULT@@' + JSON.stringify({
     state, tooltip: global.__tooltip, trayImage: !!global.__trayImage, trayTitle: global.__trayTitle || '', platform: process.platform,
     languages: settings.languages.length, thresholds: after.config.notifyThresholds, signIn: settings.signIn,
-    reqs: global.__reqs, paste, workspaces, history,
+    reqs: global.__reqs, paste, workspaces, history, clip,
     pastedStored: fs.existsSync(pastedFile) ? fs.readFileSync(pastedFile, 'utf8') : null,
     loginWindows: global.__windows.filter(w => String(w.url || '').includes('/auth/login')).length,
     notes: global.__notes || [],

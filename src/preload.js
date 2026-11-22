@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld('api', {
   paste: {
     open: (part) => ipcRenderer.send('paste:open', part),
     apply: (text, part) => ipcRenderer.invoke('paste:apply', text, part),
+    clipboard: () => ipcRenderer.invoke('paste:clipboard'),
+    applyClipboard: (part) => ipcRenderer.invoke('paste:apply-clipboard', part),
     openSessionPage: () => ipcRenderer.send('paste:open-session-page'),
   },
   history: {

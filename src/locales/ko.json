@@ -194,5 +194,10 @@
   "h.account": "계정",
   "h.mainAccount": "기본 계정",
   "s.trayAllAccounts": "트레이에 모든 계정 중 가장 높은 값 표시",
-  "tray.acctLine": "{name}: 5시간 {five} · 주간 {week}"
+  "tray.acctLine": "{name}: 5시간 {five} · 주간 {week}",
+  "p.clipFound": "클립보드에 {email}의 로그인 정보가 있습니다.",
+  "p.clipUse": "이 정보 사용",
+  "p.clipExpired": "클립보드의 로그인 정보가 만료되었습니다. 브라우저에서 페이지를 새로고침한 뒤 다시 복사하세요.",
+  "p.clipGone": "클립보드에 로그인 정보가 없습니다. 다시 복사하세요.",
+  "p.clipCleared": "클립보드에서 지웠습니다."
 }

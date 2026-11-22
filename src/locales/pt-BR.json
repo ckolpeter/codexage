@@ -194,5 +194,10 @@
   "h.account": "Conta",
   "h.mainAccount": "Conta principal",
   "s.trayAllAccounts": "A bandeja mostra o maior valor entre todas as contas",
-  "tray.acctLine": "{name}: 5 h {five} · semanal {week}"
+  "tray.acctLine": "{name}: 5 h {five} · semanal {week}",
+  "p.clipFound": "A área de transferência tem dados de login de {email}.",
+  "p.clipUse": "Usar",
+  "p.clipExpired": "Os dados de login na área de transferência expiraram. Recarregue a página no navegador e copie de novo.",
+  "p.clipGone": "A área de transferência não tem mais dados de login. Copie a página de novo.",
+  "p.clipCleared": "Removidos da área de transferência."
 }

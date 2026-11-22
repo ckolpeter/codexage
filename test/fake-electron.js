@@ -117,6 +117,7 @@ const safeStorage = {
 };
 module.exports = {
   app, BrowserWindow, Tray, Notification, session, safeStorage,
+  clipboard: { readText: () => global.__clip || '', clear: () => { global.__clip = ''; } },
   Menu: { buildFromTemplate: (t) => ({ t, popup() {} }) },
   ipcMain: { handle: (c, f) => (handlers[c] = f), on: (c, f) => (handlers[c] = f) },
   nativeImage: { createFromPath: img, createFromDataURL: img },

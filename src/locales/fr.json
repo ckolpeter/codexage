@@ -194,5 +194,10 @@
   "h.account": "Compte",
   "h.mainAccount": "Compte principal",
   "s.trayAllAccounts": "La barre système affiche la valeur la plus haute de tous les comptes",
-  "tray.acctLine": "{name} : 5 h {five} · hebdo {week}"
+  "tray.acctLine": "{name} : 5 h {five} · hebdo {week}",
+  "p.clipFound": "Le presse-papiers contient les données de connexion de {email}.",
+  "p.clipUse": "Les utiliser",
+  "p.clipExpired": "Les données du presse-papiers ont expiré. Rechargez la page dans votre navigateur et copiez-la à nouveau.",
+  "p.clipGone": "Le presse-papiers ne contient plus de données de connexion. Copiez à nouveau la page.",
+  "p.clipCleared": "Supprimées du presse-papiers."
 }

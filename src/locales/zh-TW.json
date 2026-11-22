@@ -194,5 +194,10 @@
   "h.account": "帳號",
   "h.mainAccount": "主帳號",
   "s.trayAllAccounts": "系統匣顯示所有帳號中最高的數字",
-  "tray.acctLine": "{name}：5 小時 {five}・每週 {week}"
+  "tray.acctLine": "{name}：5 小時 {five}・每週 {week}",
+  "p.clipFound": "剪貼簿裡有 {email} 的登入資料。",
+  "p.clipUse": "使用這份資料",
+  "p.clipExpired": "剪貼簿裡的登入資料已經過期。請在瀏覽器重新整理該頁後再複製一次。",
+  "p.clipGone": "剪貼簿裡已經沒有登入資料，請再複製一次。",
+  "p.clipCleared": "已從剪貼簿清除。"
 }

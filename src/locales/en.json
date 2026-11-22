@@ -194,5 +194,10 @@
   "h.account": "Account",
   "h.mainAccount": "Main account",
   "s.trayAllAccounts": "Tray shows the highest of all accounts",
-  "tray.acctLine": "{name}: 5h {five} · weekly {week}"
+  "tray.acctLine": "{name}: 5h {five} · weekly {week}",
+  "p.clipFound": "The clipboard has sign-in data for {email}.",
+  "p.clipUse": "Use it",
+  "p.clipExpired": "The sign-in data in the clipboard has expired. Reload the page in your browser and copy it again.",
+  "p.clipGone": "The clipboard no longer has sign-in data. Copy the page again.",
+  "p.clipCleared": "Removed it from the clipboard."
 }

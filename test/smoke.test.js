@@ -236,3 +236,22 @@ test('tray: other accounts in the tooltip; highest of all accounts only when ask
   const on = run({ ...base, PRECONFIG: JSON.stringify({ accounts: acct, trayAllAccounts: true }) });
   assert.equal(on.trayTitle.trim(), '85%'); // weekly-only account: 5-hour metric falls back to weekly
 });
+
+test('paste window: session data in the clipboard is offered, applied, then cleared', () => {
+  const r = run({ SIGNIN: 'none', CLIP: 'valid' });
+  assert.deepEqual(r.clip.seen, { email: 'clip@example.com', plan: 'Pro' }); // no token goes to the page
+  assert.equal(r.clip.apply.ok, true);
+  assert.equal(r.clip.left, ''); // token removed from the clipboard
+  assert.equal(r.state.status, 'ok');
+  assert.equal(usageReqs(r).pop().account, 'acc-c');
+});
+
+test('paste window: expired or unrelated clipboard text', () => {
+  const e = run({ SIGNIN: 'none', CLIP: 'expired' });
+  assert.deepEqual(e.clip.seen, { expired: true });
+  assert.equal(e.clip.apply.ok, false);
+  const o = run({ SIGNIN: 'none', CLIP: 'just some text' });
+  assert.equal(o.clip.seen, null);
+  assert.equal(o.clip.apply.ok, false);
+  assert.equal(o.clip.left, 'just some text'); // other clipboard contents are never touched
+});

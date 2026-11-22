@@ -194,5 +194,10 @@
   "h.account": "Konto",
   "h.mainAccount": "Hauptkonto",
   "s.trayAllAccounts": "Tray zeigt den höchsten Wert aller Konten",
-  "tray.acctLine": "{name}: 5 Std. {five} · Woche {week}"
+  "tray.acctLine": "{name}: 5 Std. {five} · Woche {week}",
+  "p.clipFound": "In der Zwischenablage sind Anmeldedaten für {email}.",
+  "p.clipUse": "Verwenden",
+  "p.clipExpired": "Die Anmeldedaten in der Zwischenablage sind abgelaufen. Lade die Seite im Browser neu und kopiere sie erneut.",
+  "p.clipGone": "In der Zwischenablage sind keine Anmeldedaten mehr. Kopiere die Seite erneut.",
+  "p.clipCleared": "Aus der Zwischenablage entfernt."
 }

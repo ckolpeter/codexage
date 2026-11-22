@@ -194,5 +194,10 @@
   "h.account": "账号",
   "h.mainAccount": "主账号",
   "s.trayAllAccounts": "托盘显示所有账号中最高的数字",
-  "tray.acctLine": "{name}：5 小时 {five}・每周 {week}"
+  "tray.acctLine": "{name}：5 小时 {five}・每周 {week}",
+  "p.clipFound": "剪贴板里有 {email} 的登录资料。",
+  "p.clipUse": "使用这份资料",
+  "p.clipExpired": "剪贴板里的登录资料已经过期。请在浏览器刷新该页后再复制一次。",
+  "p.clipGone": "剪贴板里已经没有登录资料，请再复制一次。",
+  "p.clipCleared": "已从剪贴板清除。"
 }

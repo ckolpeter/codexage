@@ -194,5 +194,10 @@
   "h.account": "アカウント",
   "h.mainAccount": "メインアカウント",
   "s.trayAllAccounts": "トレイに全アカウントの最大値を表示",
-  "tray.acctLine": "{name}：5時間 {five}・週 {week}"
+  "tray.acctLine": "{name}：5時間 {five}・週 {week}",
+  "p.clipFound": "クリップボードに {email} のサインイン情報があります。",
+  "p.clipUse": "これを使う",
+  "p.clipExpired": "クリップボードのサインイン情報は期限切れです。ブラウザでページを再読み込みしてもう一度コピーしてください。",
+  "p.clipGone": "クリップボードにサインイン情報がありません。もう一度コピーしてください。",
+  "p.clipCleared": "クリップボードから消去しました。"
 }

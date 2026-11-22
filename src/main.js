@@ -14,7 +14,7 @@
  */
 const {
   app, BrowserWindow, Tray, Menu, ipcMain, session, nativeImage, dialog,
-  Notification, screen, powerMonitor, shell, globalShortcut, nativeTheme, net, safeStorage,
+  Notification, screen, powerMonitor, shell, globalShortcut, nativeTheme, net, safeStorage, clipboard,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -896,12 +896,33 @@ async function applyPasted(text, part = PARTITION) {
   const ok = st.status === 'ok';
   if (!ok && st.status === 'auth') setPasted(part, null); // rejected: don't keep a bad token around
   const until = info.expiresAt ? new Date(info.expiresAt).toLocaleString(lang) : '';
+  // The token works like a password: don't leave it in the clipboard once it's stored
+  const cleared = ok && clearClipboardToken(info.token);
   return {
     ok,
     message: ok
       ? t('p.ok') + (until ? ' ' + t('p.until', { time: until }) : '') + (persisted ? '' : ' ' + t('p.memoryOnly'))
+        + (cleared ? ' ' + t('p.clipCleared') : '')
       : stateMessage(st),
   };
+}
+
+/** Session page contents sitting in the clipboard: { text, info } | { expired } | null */
+function clipboardSession() {
+  let text = '';
+  try { text = clipboard.readText(); } catch { return null; }
+  if (!text || text.length > 100e3 || !/accessToken/.test(text)) return null;
+  try {
+    const info = parsePastedSession(text);
+    return info.email ? { text, info } : null;
+  } catch (code) { return code === 'expired' ? { expired: true } : null; }
+}
+function clearClipboardToken(token) {
+  try {
+    if (!token || !clipboard.readText().includes(token)) return false;
+    clipboard.clear();
+    return true;
+  } catch { return false; }
 }
 
 // ---------------------------------------------------------------- extra accounts
@@ -1125,6 +1146,18 @@ ipcMain.on('use-source', (_e, src) => {
 });
 ipcMain.on('paste:open', (_e, part) => openPaste(part || PARTITION));
 ipcMain.handle('paste:apply', (_e, text, part) => applyPasted(text, part || PARTITION));
+// The paste window looks at the clipboard when it opens or gets focus; the token never goes to the page
+ipcMain.handle('paste:clipboard', () => {
+  const c = clipboardSession();
+  if (!c) return null;
+  if (c.expired) return { expired: true };
+  return { email: usage.accountName(c.info.email, '', config.maskEmail), plan: c.info.plan || '' };
+});
+ipcMain.handle('paste:apply-clipboard', (_e, part) => {
+  const c = clipboardSession();
+  if (!c?.text) return { ok: false, message: t('p.clipGone') };
+  return applyPasted(c.text, part || PARTITION);
+});
 ipcMain.on('paste:open-session-page', () => shell.openExternal(SESSION_PAGE));
 /** Name of a history account: the main / extra account's display name, else its email */
 function historyName(key) {

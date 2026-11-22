@@ -194,5 +194,10 @@
   "h.account": "Cuenta",
   "h.mainAccount": "Cuenta principal",
   "s.trayAllAccounts": "La bandeja muestra el valor más alto de todas las cuentas",
-  "tray.acctLine": "{name}: 5 h {five} · semanal {week}"
+  "tray.acctLine": "{name}: 5 h {five} · semanal {week}",
+  "p.clipFound": "El portapapeles tiene datos de inicio de sesión de {email}.",
+  "p.clipUse": "Usarlos",
+  "p.clipExpired": "Los datos del portapapeles han caducado. Recarga la página en tu navegador y cópiala de nuevo.",
+  "p.clipGone": "El portapapeles ya no tiene datos de inicio de sesión. Copia la página de nuevo.",
+  "p.clipCleared": "Se borraron del portapapeles."
 }
