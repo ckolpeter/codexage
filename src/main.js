@@ -1019,8 +1019,19 @@ function openSettings() {
   settingsWin.on('closed', () => { settingsWin = null; });
 }
 
-function openHistory() {
-  if (historyWin && !historyWin.isDestroyed()) { historyWin.focus(); return; }
+let historyPick; // account key the history window should open on
+/** part: show this account ('' = main, a partition = another account); omitted = keep the current choice */
+function openHistory(part) {
+  let key;
+  if (typeof part === 'string') {
+    const acct = part ? (config.accounts || []).find(a => a.partition === part) : null;
+    key = acct ? histKey(acct.email) : histKey(config.mainEmail);
+  }
+  if (historyWin && !historyWin.isDestroyed()) {
+    if (key) historyWin.webContents.send('history:select', key);
+    historyWin.focus(); return;
+  }
+  historyPick = key || undefined;
   historyWin = new BrowserWindow({
     width: 600, height: 560, title: t('h.title'), backgroundColor: '#1b1d22',
     autoHideMenuBar: true, minWidth: 420, minHeight: 480,
@@ -1064,7 +1075,7 @@ function buildMenu() {
     { type: 'separator' },
     { label: t('menu.login'), click: () => openLogin(), enabled: config.source === 'web' },
     { label: t('menu.paste'), click: () => openPaste() },
-    { label: t('menu.history'), click: openHistory },
+    { label: t('menu.history'), click: () => openHistory() },
     { label: t('menu.openUsage'), click: () => shell.openExternal(USAGE_PAGE) },
     { type: 'separator' },
     {
@@ -1170,7 +1181,7 @@ ipcMain.handle('get-state', () => ({ state: lastState, opts: viewOpts() }));
 ipcMain.on('refresh', () => refresh());
 ipcMain.on('login', () => openLogin());
 ipcMain.on('open-settings', () => openSettings());
-ipcMain.on('open-history', () => openHistory());
+ipcMain.on('open-history', (_e, part) => openHistory(typeof part === 'string' ? part : undefined));
 ipcMain.on('open-issue', () => shell.openExternal(ISSUES_URL));
 ipcMain.on('use-source', (_e, src) => {
   if (src !== 'web' && src !== 'cli' || src === config.source) return;
@@ -1203,6 +1214,7 @@ function historyName(key) {
   return a ? acctName(a) : usage.accountName(key, '', config.maskEmail);
 }
 ipcMain.handle('history:get', (_e, acct) => {
+  if (acct == null && historyPick) { acct = historyPick; historyPick = undefined; }
   const now = Date.now();
   const main = histKey(config.mainEmail);
   // Main account first, then the others by when they were last seen

@@ -227,6 +227,18 @@ test('history is kept per account; the history window can switch between them', 
   assert.deepEqual(w.history.five, []);
 });
 
+test('clicking an account name opens the history on that account', () => {
+  const r = run({
+    FIXTURE_OTHER: FIX('usage-weekly-only.json'), OPEN_HISTORY: 'persist:chatgpt-acct-x',
+    PRECONFIG: JSON.stringify({ accounts: [{ partition: 'persist:chatgpt-acct-x', email: '' }] }),
+  });
+  assert.equal(r.openHistory.first, 'work@example.com');
+  assert.equal(r.openHistory.second, 'me@example.com');
+  assert.deepEqual(r.openHistory.afterButton, []); // header button keeps the current choice
+  assert.deepEqual(r.openHistory.afterMain, ['me@example.com']);
+  assert.equal(r.openHistory.windows, 1);
+});
+
 test('tray: other accounts in the tooltip; highest of all accounts only when asked', () => {
   const acct = [{ partition: 'persist:chatgpt-acct-x', email: '' }];
   const base = { FIXTURE_OTHER: FIX('usage-weekly-only.json'), SIM_PLATFORM: 'darwin' };

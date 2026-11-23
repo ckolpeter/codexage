@@ -80,25 +80,61 @@ function creditsHtml(c) {
   return `<div class="row secondary"><div class="line"><span class="label">${esc(t('label.credits'))}</span><span class="pct money">${esc(v)}</span></div></div>`;
 }
 
+/** Run-out warning for a window, or '' when it lasts until the reset */
+function etaText(w) {
+  const e = w.eta;
+  if (!e) return '';
+  if (e.exhausted || w.limitReached) return t('w.exhausted');
+  if (e.beforeReset && e.at) return e.at > Date.now() ? t('w.etaRunOut', { left: fmtDur(e.at - Date.now()) }) : t('w.exhausted');
+  return '';
+}
+
+/** Short line under another account's bar once it matters: reached / runs out before the reset / ≥ 70% */
+function msubHtml(w) {
+  if (w.idle || !w.resetsAt) return '';
+  const ms = new Date(w.resetsAt).getTime() - Date.now();
+  if (!isFinite(ms)) return '';
+  const reset = ms > 0 ? fmtDur(ms) : null;
+  const e = w.eta;
+  const reached = w.limitReached || e?.exhausted || (e?.beforeReset && e.at && e.at <= Date.now());
+  if (reached) return `<div class="msub bad">${esc(reset ? t('w.mReached', { reset }) : t('w.exhausted'))}</div>`;
+  if (e?.beforeReset && e.at && reset) return `<div class="msub warn">${esc(t('w.mRunOut', { left: fmtDur(e.at - Date.now()), reset }))}</div>`;
+  if (w.pct >= 70) return `<div class="msub">${esc(fmtLeft(w.resetsAt))}</div>`;
+  return '';
+}
+
+/** Compact bar for another account; the full reset time and forecast are in the tooltip */
+function mrowHtml(w) {
+  const p = Math.round(w.pct);
+  const reset = w.idle ? t('w.idle') : fmtLeft(w.resetsAt);
+  const warn = w.idle ? '' : etaText(w);
+  const tip = [`${labelOf(w)} ${p}%`, reset, warn].filter(Boolean).join('\n');
+  const sub = msubHtml(w);
+  return `<div class="mrow" title="${esc(tip)}"><span class="mlabel">${esc(labelOf(w))}</span>
+    <div class="bar mbar"><div class="fill" style="width:${w.pct}%;background:${color(w.pct)}"></div></div>
+    <span class="mpct">${p}%</span></div>${sub}`;
+}
+
+/** Account name; a click opens that account's usage history */
+function anameHtml(name, part, extra = '') {
+  return `<span class="alink" data-part="${esc(part || '')}" title="${esc(t('w.history'))}">${esc(name)}</span>${extra}`;
+}
+
 /** Extra accounts: compact block per account with its 5-hour and weekly bars */
 function othersHtml(others) {
   return others.map((o, i) => {
     const name = o.name || o.email || t('a.unnamed', { n: i + 2 });
     let body;
     if (o.status === 'ok') {
-      body = o.windows.map(w => {
-        const p = Math.round(w.pct);
-        return `<div class="mrow"><span class="mlabel">${esc(labelOf(w))}</span>
-          <div class="bar mbar"><div class="fill" style="width:${w.pct}%;background:${color(w.pct)}"></div></div>
-          <span class="mpct">${p}%</span></div>`;
-      }).join('');
+      body = o.windows.map(mrowHtml).join('');
     } else if (o.status === 'auth') {
       body = `<div class="mmsg">${esc(msgOf(o))} <a href="#" class="mlogin" data-part="${esc(o.partition)}">${esc(t('w.pasteBtn'))}</a></div>`;
     } else {
       body = `<div class="mmsg">${esc(msgOf(o))}</div>`;
     }
     if (o.signInExpiresAt) body += expiringHtml(o.signInExpiresAt, o.partition);
-    return `<div class="acct"><div class="aname">${esc(name)}${o.plan ? ` <span class="aplan">${esc(o.plan)}</span>` : ''}</div>${body}</div>`;
+    const plan = o.plan ? ` <span class="aplan">${esc(o.plan)}</span>` : '';
+    return `<div class="acct"><div class="aname">${o.email ? anameHtml(name, o.partition, plan) : esc(name) + plan}</div>${body}</div>`;
   }).join('');
 }
 
@@ -169,7 +205,7 @@ function render() {
     // Blocked: say why first (also in compact mode)
     if (data.blocked) html = blockedHtml(data) + html;
     // Which account this is: custom name or email, always shown when known
-    if (state.account) html = `<div class="aname main" title="${esc(state.account)}">${esc(state.account)}</div>` + html;
+    if (state.account) html = `<div class="aname main">${anameHtml(state.account, '')}</div>` + html;
     if (!opts.compact && data.modelsUnavailable?.length) html += modelsHtml(data.modelsUnavailable);
     if (!opts.compact && data.credits) html += creditsHtml(data.credits);
     if (!opts.compact && data.resets) html += resetsHtml(data.resets);
@@ -212,6 +248,7 @@ function render() {
       e.preventDefault(); window.api.accounts.paste(a.dataset.part);
     }));
   }
+  $('content').querySelectorAll('.alink').forEach(a => a.addEventListener('click', () => window.api.openHistory(a.dataset.part || '')));
   $('content').querySelectorAll('.repaste').forEach(a => a.addEventListener('click', (e) => {
     e.preventDefault();
     if (a.dataset.part) window.api.accounts.paste(a.dataset.part); else window.api.paste.open();

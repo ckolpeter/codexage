@@ -167,6 +167,7 @@ async function render() {
   document.body.classList.add('ready');
   await render();
   $('acct').addEventListener('change', (e) => { selected = e.target.value; render(); });
+  window.api.history.onSelect((key) => { selected = key || undefined; render(); });
   $('export').addEventListener('click', () => window.api.history.exportCSV());
   $('clear').addEventListener('click', async () => {
     if (confirm(t('h.clearConfirm'))) { await window.api.history.clear(); render(); }

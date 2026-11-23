@@ -12,6 +12,8 @@
   "w.weeklyOnly": "Derzeit gilt nur das Wochenlimit",
   "w.idle": "Nicht gestartet · die Zeit läuft ab der ersten Nutzung",
   "w.etaRunOut": "⚠ In diesem Tempo aufgebraucht in {left}",
+  "w.mRunOut": "⚠ Aufgebraucht in {left} · Reset in {reset}",
+  "w.mReached": "Limit erreicht · Reset in {reset}",
   "w.etaSafe": "✓ In diesem Tempo reicht es bis zum Zurücksetzen",
   "w.exhausted": "Limit erreicht, warte auf Zurücksetzung",
   "w.etaRecent": "Basierend auf deinem Tempo der letzten Stunde",

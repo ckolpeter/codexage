@@ -12,6 +12,8 @@
   "w.weeklyOnly": "目前只有每周额度",
   "w.idle": "尚未开始计时 · 开始使用后才起算",
   "w.etaRunOut": "⚠ 按当前速度，{left}后用完",
+  "w.mRunOut": "⚠ {left}后用完 · {reset}后重置",
+  "w.mReached": "已达上限 · {reset}后重置",
   "w.etaSafe": "✓ 按当前速度，能撑到重置",
   "w.exhausted": "已达上限，等待重置",
   "w.etaRecent": "根据最近一小时的用量速度估算",

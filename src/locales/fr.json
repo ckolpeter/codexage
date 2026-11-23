@@ -12,6 +12,8 @@
   "w.weeklyOnly": "Seule la limite hebdomadaire s'applique pour le moment",
   "w.idle": "Pas commencé · le décompte démarre à la première utilisation",
   "w.etaRunOut": "⚠ À ce rythme, épuisé dans {left}",
+  "w.mRunOut": "⚠ Épuisé dans {left} · réinitialisé dans {reset}",
+  "w.mReached": "Limite atteinte · réinitialisée dans {reset}",
   "w.etaSafe": "✓ À ce rythme, ça tient jusqu'à la réinitialisation",
   "w.exhausted": "Limite atteinte, en attente de réinitialisation",
   "w.etaRecent": "D'après votre rythme de la dernière heure",

@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('api', {
   login: () => ipcRenderer.send('login'),
   useSource: (src) => ipcRenderer.send('use-source', src),
   openSettings: () => ipcRenderer.send('open-settings'),
-  openHistory: () => ipcRenderer.send('open-history'),
+  openHistory: (part) => ipcRenderer.send('open-history', part),
   openIssue: () => ipcRenderer.send('open-issue'),
   hide: () => ipcRenderer.send('hide'),
   contextMenu: () => ipcRenderer.send('context-menu'),
@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('api', {
   },
   history: {
     get: (acct) => ipcRenderer.invoke('history:get', acct),
+    onSelect: (cb) => ipcRenderer.on('history:select', (_e, key) => cb(key)),
     clear: () => ipcRenderer.invoke('history:clear'),
     exportCSV: () => ipcRenderer.invoke('history:export'),
   },

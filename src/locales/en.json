@@ -12,6 +12,8 @@
   "w.weeklyOnly": "Only a weekly limit applies right now",
   "w.idle": "Not started · the clock starts with your first use",
   "w.etaRunOut": "⚠ At this pace, runs out in {left}",
+  "w.mRunOut": "⚠ Runs out in {left} · resets in {reset}",
+  "w.mReached": "Limit reached · resets in {reset}",
   "w.etaSafe": "✓ At this pace, lasts until reset",
   "w.exhausted": "Limit reached, waiting for reset",
   "w.etaRecent": "Based on your pace over the last hour",

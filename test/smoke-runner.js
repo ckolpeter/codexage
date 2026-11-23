@@ -83,12 +83,26 @@ setTimeout(async () => {
   const after = await ipc['settings:get']();
   // HISTORY: what the history window gets (HISTORY=<key> picks an account)
   const history = process.env.HISTORY ? await ipc['history:get']({}, process.env.HISTORY === '1' ? undefined : process.env.HISTORY) : undefined;
+  // OPEN_HISTORY=<partition>: click that account's name on the widget → history opens on it;
+  // then the header button (no account) and the main account's name while it's open
+  let openHistory;
+  if (process.env.OPEN_HISTORY) {
+    ipc['open-history']({}, process.env.OPEN_HISTORY);
+    const first = await ipc['history:get']({}, undefined);
+    const second = await ipc['history:get']({}, undefined); // the pick is used once
+    const selects = () => global.__sent.filter(s => s[0] === 'history:select').map(s => s[1]);
+    ipc['open-history']({}, undefined);
+    const afterButton = selects();
+    ipc['open-history']({}, '');
+    openHistory = { first: first.selected, second: second.selected, afterButton, afterMain: selects(),
+      windows: global.__windows.filter(w => String(w.file || '').endsWith('history.html')).length };
+  }
   const workspaces = process.env.WORKSPACES ? await ipc['settings:list-workspaces']() : undefined;
   const pastedFile = path.join(global.__userData, 'pasted-sessions.bin');
   process.stdout.write('\n@@RESULT@@' + JSON.stringify({
     state, tooltip: global.__tooltip, trayImage: !!global.__trayImage, trayTitle: global.__trayTitle || '', platform: process.platform,
     languages: settings.languages.length, thresholds: after.config.notifyThresholds, signIn: settings.signIn,
-    reqs: global.__reqs, paste, workspaces, history, clip, google,
+    reqs: global.__reqs, paste, workspaces, history, clip, google, openHistory,
     pastedStored: fs.existsSync(pastedFile) ? fs.readFileSync(pastedFile, 'utf8') : null,
     loginWindows: global.__windows.filter(w => String(w.url || '').includes('/auth/login')).length,
     notes: global.__notes || [],

@@ -12,6 +12,8 @@
   "w.weeklyOnly": "현재는 주간 한도만 적용됩니다",
   "w.idle": "시작 전 · 처음 사용할 때부터 계산됩니다",
   "w.etaRunOut": "⚠ 이 속도라면 {left} 후 소진",
+  "w.mRunOut": "⚠ {left} 후 소진 · {reset} 후 초기화",
+  "w.mReached": "한도 도달 · {reset} 후 초기화",
   "w.etaSafe": "✓ 이 속도라면 초기화까지 충분",
   "w.exhausted": "한도 도달, 초기화 대기 중",
   "w.etaRecent": "최근 1시간 사용 속도 기준",

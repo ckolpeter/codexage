@@ -96,6 +96,12 @@
   .mbar { flex: 1; margin-top: 0; height: 4px; }
   .mpct { width: 32px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
   .mmsg { font-size: 11px; color: var(--muted); }
+  .msub { font-size: 10px; color: var(--muted); margin: 1px 0 2px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msub.warn { color: var(--warn); }
+  .msub.bad { color: var(--bad); font-weight: 600; }
+  .compact .msub:not(.bad) { display: none; }
+  .alink { cursor: pointer; }
+  .alink:hover { text-decoration: underline; }
   .mmsg a { color: var(--accent); -webkit-app-region: no-drag; }
 
   .bd { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); }
