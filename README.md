@@ -6,6 +6,10 @@ A tiny, always-on-top desktop widget that shows your **OpenAI Codex / ChatGPT pl
 
 Windows · macOS · Linux
 
+<img src="docs/screenshot-en.png" width="280" alt="Codexage widget: 5-hour 64%, weekly 38%, code review, usage limit resets, and a second account">
+
+<sub>Sample data.</sub>
+
 > **Unofficial.** Codexage is a community project. It is not affiliated with, endorsed by or sponsored by OpenAI. OpenAI, Codex and ChatGPT are trademarks of OpenAI. Codexage reads the same private endpoint (`chatgpt.com/backend-api/wham/usage`) that the open-source Codex client uses for its rate-limit display. That endpoint has no compatibility guarantee and may change without notice.
 
 ## Features
@@ -16,10 +20,10 @@ Windows · macOS · Linux
 - When you hit a limit: **why** (your own limit, workspace out of credits, or a workspace cap), which models are unavailable and until when, and a reminder before a usage limit reset expires. Business / Enterprise: your **monthly credit limit** ("8,000 of 25,000 credits used")
 - **Run-out prediction**: "At this pace, runs out in 1h 18m", based on your pace over the last hour
 - A **pace marker** on each bar shows how much of the window has elapsed; an unused 5-hour window shows "not started" instead of a frozen countdown
-- **Usage history** charts (5-hour over 24 hours, weekly over 7 days) and CSV export
+- **Usage history** charts (5-hour over 24 hours, weekly over 7 days) for each account, and CSV export
 - **Tray icon shows the number** and turns green / amber / red (macOS: menu bar text)
 - Notifications at custom thresholds (default 80% / 95%) and when a limit resets, with quiet hours
-- **Multiple accounts** in one widget, and a workspace picker for Business / Enterprise users
+- **Multiple accounts** in one widget, each with its own name (or a masked email for screen sharing); the tray can show the highest of all accounts. Workspace picker for Business / Enterprise users
 - Dark / light / system theme, size scaling, opacity, compact mode, click-through mode
 - Global hotkey (Ctrl+Alt+X) to show/hide; Ctrl+Alt+Shift+X toggles click-through
 - Auto-hide while another app is full screen (Windows, optional); snaps to screen edges; remembers its position
@@ -52,7 +56,11 @@ Google blocks sign-in inside embedded app windows ("This browser or app may not 
 
 1. Sign in to chatgpt.com in your normal browser.
 2. Open `https://chatgpt.com/api/auth/session` in that browser, select all and copy.
-3. In Codexage, click **Paste sign-in** (on the widget, in the tray menu, or in Settings) and paste.
+3. In Codexage, click **Paste sign-in** (on the widget, in the tray menu, or in Settings). The window spots what you copied — click **Use it** (or paste by hand).
+
+The sign-in window offers this automatically as soon as it reaches Google. Once stored, the token is removed from your clipboard.
+
+**A second Google account:** your browser is still signed in to the first one, so open a private window (Ctrl+Shift+N), sign in to the other account there, copy the session page, then use **Settings → Other accounts → + Add by pasting**. Close the private window afterwards — don't click *Log out*.
 
 The pasted session is stored encrypted with your OS (Windows DPAPI / macOS Keychain / Linux secret store) and only on this computer. It expires after a while: about a day or two before that, Codexage notifies you and shows a "Paste again" link on the widget.
 
