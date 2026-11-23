@@ -77,6 +77,14 @@ setTimeout(async () => {
     const paste = global.__windows.find(w => String(w.file || '').endsWith('paste.html') && !w.destroyed);
     google = { dialogs: global.__dialogs || [], loginClosed: !!login.destroyed, pastePart: paste?.query?.part || null };
   }
+  // RESET_OTHER: the extra account's limit resets between two refreshes
+  if (process.env.RESET_OTHER) {
+    const f = JSON.parse(fs.readFileSync(process.env.FIXTURE_OTHER || process.env.FIXTURE, 'utf8'));
+    f.rate_limit.primary_window = { ...f.rate_limit.primary_window, used_percent: 3, reset_at: f.rate_limit.primary_window.reset_at + 604800 };
+    global.__fixtureOther = f;
+    await ipc['refresh']();
+    await new Promise(r => setTimeout(r, 300));
+  }
   const state = global.__sent.filter(s => s[0] === 'usage').pop()?.[1];
   const settings = await ipc['settings:get']();
   await ipc['settings:set']({}, { notifyThresholds: [95, 50, 200, 'x'] });

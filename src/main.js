@@ -524,8 +524,7 @@ async function doRefresh() {
       history?.add(lastState, Date.now(), key);
       addEta(lastState, key);
       maybeNotify(lastState, who);
-      checkResets(prevOk, lastState);
-      scheduleResetCheck(lastState);
+      checkResets(prevOk, lastState, who);
     }
   } catch (e) {
     console.error('[refresh]', e);
@@ -546,6 +545,8 @@ async function doRefresh() {
     }
   }
   lastState.others = await othersP;
+  // Refresh right after the next reset of any account
+  scheduleResetCheck([...(lastState.windows || []), ...lastState.others.flatMap(o => o.windows || [])]);
   lastState.email = config.mainEmail || '';
   lastState.account = mainName();
   push(lastState);
@@ -652,7 +653,8 @@ function maybeNotify(state, who = '') {
   }
 }
 
-function checkResets(prev, cur) {
+/** who: account name when there are several accounts */
+function checkResets(prev, cur, who = '') {
   if (!prev?.windows || !config.notifyReset) return;
   const now = Date.now();
   for (const key of ['five_hour', 'seven_day']) {
@@ -663,7 +665,7 @@ function checkResets(prev, cur) {
     const newWindow = p.resetsAt && c.resetsAt !== p.resetsAt; // includes "new window not started yet"
     if ((prevEnded || newWindow) && c.pct < p.pct - 5) {
       notify({
-        title: t('notify.resetTitle', { label: labelOf(c) }),
+        title: (who ? `${who} · ` : '') + t('notify.resetTitle', { label: labelOf(c) }),
         body: t('notify.resetBody', { pct: Math.round(c.pct) }),
       });
     }
@@ -671,10 +673,10 @@ function checkResets(prev, cur) {
 }
 
 /** Refresh right after the next reset so the widget and notification are timely */
-function scheduleResetCheck(state) {
+function scheduleResetCheck(windows) {
   clearTimeout(resetTimer);
   const now = Date.now();
-  const next = state.windows
+  const next = windows
     .filter(w => w.primary && w.resetsAt)
     .map(w => new Date(w.resetsAt).getTime())
     .filter(x => Number.isFinite(x) && x > now)
@@ -984,6 +986,7 @@ async function removeAccount(part) {
   push(lastState);
 }
 
+const othersPrev = new Map(); // partition → last good state, to spot resets
 /** Fetch every extra account (in parallel). Failures become per-account status, never throw. */
 async function fetchOthers() {
   return Promise.all((config.accounts || []).map(async (acct) => {
@@ -996,6 +999,7 @@ async function fetchOthers() {
       if (key) history?.add(st, Date.now(), key);
       addEta(st, key || acct.partition);
       maybeNotify(st, base.name || base.email);
+      if (st.windows.length) { checkResets(othersPrev.get(acct.partition), st, base.name || base.email); othersPrev.set(acct.partition, st); }
       return {
         ...base, status: st.windows.length ? 'ok' : 'error', msgKey: st.windows.length ? undefined : 'err.noLimits',
         plan: st.plan, windows: st.windows.filter(w => w.primary),

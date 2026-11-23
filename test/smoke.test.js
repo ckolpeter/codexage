@@ -239,6 +239,16 @@ test('clicking an account name opens the history on that account', () => {
   assert.equal(r.openHistory.windows, 1);
 });
 
+test('another account resetting is announced with its name', () => {
+  const r = run({
+    FIXTURE_OTHER: FIX('usage-weekly-only.json'), RESET_OTHER: '1',
+    PRECONFIG: JSON.stringify({ accounts: [{ partition: 'persist:chatgpt-acct-x', email: '', label: '公司' }] }),
+  });
+  const resets = r.notes.filter(n => /^公司 · /.test(n.title) && n.body && /3/.test(n.body));
+  assert.equal(resets.length, 1, JSON.stringify(r.notes));
+  assert.equal(r.state.others[0].windows[0].pct, 3);
+});
+
 test('tray: other accounts in the tooltip; highest of all accounts only when asked', () => {
   const acct = [{ partition: 'persist:chatgpt-acct-x', email: '' }];
   const base = { FIXTURE_OTHER: FIX('usage-weekly-only.json'), SIM_PLATFORM: 'darwin' };

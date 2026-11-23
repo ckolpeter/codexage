@@ -50,7 +50,7 @@ function respond(url, headers = {}, part = null) {
     };
   } else if (u.pathname === '/backend-api/wham/usage') {
     if (!h.authorization) { status = 401; body = { detail: 'Unauthorized' }; }
-    else { status = Number(process.env.USAGE_STATUS || 200); body = status !== 200 ? { detail: 'nope' } : part && part !== 'persist:chatgpt' ? fixtureOther : fixture; }
+    else { status = Number(process.env.USAGE_STATUS || 200); body = status !== 200 ? { detail: 'nope' } : part && part !== 'persist:chatgpt' ? (global.__fixtureOther || fixtureOther) : fixture; }
   } else if (u.pathname === '/backend-api/wham/rate-limit-reset-credits') {
     // RESET_EXPIRY_HOURS: hours until the soonest available reset expires (default 30 days)
     const soon = new Date(Date.now() + Number(process.env.RESET_EXPIRY_HOURS || 720) * 3600e3).toISOString();
