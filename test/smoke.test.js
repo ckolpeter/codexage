@@ -249,6 +249,18 @@ test('another account resetting is announced with its name', () => {
   assert.equal(r.state.others[0].windows[0].pct, 3);
 });
 
+test('tray menu lists every account; a click opens its history', () => {
+  const r = run({
+    FIXTURE_OTHER: FIX('usage-weekly-only.json'), SIM_PLATFORM: 'win32',
+    PRECONFIG: JSON.stringify({ accounts: [{ partition: 'persist:chatgpt-acct-x', email: '', label: 'R&D' }] }),
+    MENU_CLICK: '1',
+  });
+  assert.match(r.menu[0], /^me@example\.com：5 小時 \d+%・每週 \d+%$/);
+  assert.equal(r.menu[1], 'R&&D：5 小時 -・每週 85%'); // "&" escaped so it isn't an accelerator
+  assert.equal(r.menu[2], 'separator');
+  assert.equal(r.menuClick, 'work@example.com'); // history opens on that account
+});
+
 test('tray: other accounts in the tooltip; highest of all accounts only when asked', () => {
   const acct = [{ partition: 'persist:chatgpt-acct-x', email: '' }];
   const base = { FIXTURE_OTHER: FIX('usage-weekly-only.json'), SIM_PLATFORM: 'darwin' };

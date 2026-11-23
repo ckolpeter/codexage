@@ -1071,9 +1071,25 @@ function updateMenuItems() {
   ];
 }
 
+/** One line per account at the top of the tray menu ("Work: 5h 91% · weekly 57%"); a click opens its history */
+function usageMenuItems() {
+  const pctIn = (ws, key) => { const w = ws.find(x => x.key === key); return w ? Math.round(w.pct) + '%' : '-'; };
+  const line = (name, ws, part) => ({
+    // "&" would become a keyboard accelerator on Windows / Linux
+    label: t('tray.acctLine', { name: String(name).replace(/&/g, '&&'), five: pctIn(ws, 'five_hour'), week: pctIn(ws, 'seven_day') }),
+    click: () => openHistory(part),
+  });
+  const items = [];
+  const main = lastState.status === 'ok' ? lastState.windows : lastState.prev?.windows;
+  if (main?.length) items.push(line(lastState.account || t('h.mainAccount'), main, ''));
+  for (const o of lastState.others || []) if (o.status === 'ok' && o.windows?.length) items.push(line(o.name || o.email, o.windows, o.partition));
+  return items.length ? [...items, { type: 'separator' }] : [];
+}
+
 function buildMenu() {
   const items = [
     ...updateMenuItems(),
+    ...usageMenuItems(),
     { label: widget && widget.isVisible() ? t('menu.hide') : t('menu.show'), click: toggleWidget },
     { label: t('menu.refresh'), click: refresh },
     { type: 'separator' },

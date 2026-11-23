@@ -105,12 +105,19 @@ setTimeout(async () => {
     openHistory = { first: first.selected, second: second.selected, afterButton, afterMain: selects(),
       windows: global.__windows.filter(w => String(w.file || '').endsWith('history.html')).length };
   }
+  // MENU_CLICK=<n>: click the n-th tray menu item, then see which account the history window opens on
+  let menuClick;
+  if (process.env.MENU_CLICK) {
+    global.__menu.t[Number(process.env.MENU_CLICK)].click();
+    menuClick = (await ipc['history:get']({}, undefined)).selected;
+  }
   const workspaces = process.env.WORKSPACES ? await ipc['settings:list-workspaces']() : undefined;
   const pastedFile = path.join(global.__userData, 'pasted-sessions.bin');
   process.stdout.write('\n@@RESULT@@' + JSON.stringify({
     state, tooltip: global.__tooltip, trayImage: !!global.__trayImage, trayTitle: global.__trayTitle || '', platform: process.platform,
     languages: settings.languages.length, thresholds: after.config.notifyThresholds, signIn: settings.signIn,
     reqs: global.__reqs, paste, workspaces, history, clip, google, openHistory,
+    menu: (global.__menu?.t || []).map(i => i.label || i.type), menuClick,
     pastedStored: fs.existsSync(pastedFile) ? fs.readFileSync(pastedFile, 'utf8') : null,
     loginWindows: global.__windows.filter(w => String(w.url || '').includes('/auth/login')).length,
     notes: global.__notes || [],
